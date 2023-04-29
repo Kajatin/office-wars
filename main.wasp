@@ -2,10 +2,10 @@ app ProjectBird {
   wasp: {
     version: "^0.10.2"
   },
-  title: "project-bird"
+  title: "Office Wars - A Strategy Game",
 }
 
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
-  component: import Main from "@client/MainPage.jsx"
+  component: import Main from "@client/MainPage.tsx"
 }

@@ -1,4 +1,4 @@
-# project-bird
+# Office Wars ⚔️🛡️
 
 A turn-based strategy game built with Wasp 🐝
 
