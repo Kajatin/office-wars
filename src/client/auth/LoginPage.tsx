@@ -5,7 +5,7 @@ import { LoginForm } from "@wasp/auth/forms/Login";
 import { AuthWrapper } from "./AuthWrapper";
 import useAuth from "@wasp/auth/useAuth";
 import logo from "../static/logo.png";
-import { appearance } from "./style";
+import { appearance } from "./Style";
 
 export default function Login() {
   const history = useHistory();

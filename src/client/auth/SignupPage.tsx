@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { SignupForm } from "@wasp/auth/forms/Signup";
 import { AuthWrapper } from "./AuthWrapper";
 import logo from "../static/logo.png";
-import { appearance } from "./style";
+import { appearance } from "./Style";
 
 export default function SignupPage() {
   return (
