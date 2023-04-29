@@ -52,7 +52,7 @@ export default function TankCustomizer(props: { user: User }) {
   return (
     <div className="flex flex-col w-full h-full sm:w-fit justify-center">
       <div className="rounded px-4 py-2">
-        <div className="flex flex-row justify-between font-medium text-2xl py-1 border-b align-middle">
+        <div className="flex flex-row justify-between font-medium text-2xl py-1 border-b items-center">
           <div className="flex flex-row gap-1">
             <input
               className="h-7 w-6 self-center rounded hover:-hue-rotate-15"
@@ -84,7 +84,7 @@ export default function TankCustomizer(props: { user: User }) {
           <div className="justify-center content-center">
             <Tank color={color} changed={changed} />
             <div>
-              <div className="flex justify-between font-medium text-lg align-text-bottom">
+              <div className="flex justify-between font-medium text-lg items-center">
                 <span>Ability points</span>
                 <span className="text-base font-normal opacity-70">
                   {abilityPoints} / 20
@@ -132,13 +132,9 @@ export default function TankCustomizer(props: { user: User }) {
                         color: color,
                       };
                       if (tank) {
-                        if (await updateTank(newTank)) {
-                          //   setChanged(false);
-                        }
+                        await updateTank(newTank);
                       } else {
-                        if (await addTank(newTank)) {
-                          //   setChanged(false);
-                        }
+                        await addTank(newTank);
                       }
                     } catch (err) {
                       console.log(err);
