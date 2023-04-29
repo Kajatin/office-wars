@@ -31,8 +31,35 @@ page LoginPage {
   component: import Login from "@client/auth/LoginPage"
 }
 
+query getTank {
+  fn: import { getTank } from "@server/queries.js",
+  entities: [Tank]
+}
+
+action addTank {
+  fn: import { addTank } from "@server/actions.js",
+  entities: [Tank]
+}
+
+action removeTank {
+  fn: import { removeTank } from "@server/actions.js",
+  entities: [Tank]
+}
+
 entity User {=psl
   id       Int    @id @default(autoincrement())
   username String @unique
   password String
+  tank     Tank?
+psl=}
+
+entity Tank {=psl
+  id          Int    @id @default(autoincrement())
+  user        User   @relation(fields: [userId], references: [id])
+  userId      Int    @unique
+  agility     Int    @default(1)
+  armor       Int    @default(1)
+  accuracy    Int    @default(1)
+  attackPower Int    @default(1)
+  color       String @default("353f4a")
 psl=}

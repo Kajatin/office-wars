@@ -1,0 +1,14 @@
+-- CreateTable
+CREATE TABLE "Tank" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "userId" INTEGER NOT NULL,
+    "agility" INTEGER NOT NULL DEFAULT 1,
+    "armor" INTEGER NOT NULL DEFAULT 1,
+    "accuracy" INTEGER NOT NULL DEFAULT 1,
+    "attackPower" INTEGER NOT NULL DEFAULT 1,
+    "color" TEXT NOT NULL DEFAULT '353f4a',
+    CONSTRAINT "Tank_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Tank_userId_key" ON "Tank"("userId");
