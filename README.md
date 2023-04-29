@@ -7,6 +7,11 @@ project was created for the [Wasp Hackathon #2](https://hackathon.wasp-lang.dev)
 
 ## Contributors
 
-Luís Silva 🥷 ([Github](https://github.com/LudeeD))
+This project is brought to you by:
 
-Roland Kajatin 🧙🏼‍♂️ ([Github](https://github.com/Kajatin), [BlueSky](https://bsky.app/profile/kajatin.bsky.social))
+* Luís Silva 🥷 ([Github](https://github.com/LudeeD))
+* Roland Kajatin 🧙🏼‍♂️ ([Github](https://github.com/Kajatin), [BlueSky](https://bsky.app/profile/kajatin.bsky.social))
+
+If you want to contribute yourself, ensure you have a functioning `node` and `npm` installation.
+Then you'll need to install `wasp` on your system. To learn more, head on over to the
+[getting started guide](https://wasp-lang.dev/docs/quick-start).
