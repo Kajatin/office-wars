@@ -2,8 +2,6 @@ import HttpError from "@wasp/core/HttpError.js";
 import type { Tank } from "@wasp/entities";
 
 export async function addTank(tank: Tank, context: any) {
-  console.log(tank, context);
-
   if (!context.user) {
     throw new HttpError(401, "You must be logged in to add a tank.");
   }
@@ -23,10 +21,11 @@ export async function addTank(tank: Tank, context: any) {
   }
 
   // Ensure that the total of the tank's stats is less than or equal to 20.
-  if (tank.agility + tank.armor + tank.accuracy + tank.attackPower > 20) {
+  const sum = tank.agility + tank.armor + tank.accuracy + tank.attackPower;
+  if (sum > 20 || sum < 0) {
     throw new HttpError(
       400,
-      "Total of tank's stats must be less than or equal to 20."
+      "Total of tank's stats must be less than or equal to 20 and greater than 0."
     );
   }
 
@@ -39,6 +38,49 @@ export async function addTank(tank: Tank, context: any) {
       attackPower: tank.attackPower,
       color: tank.color,
       userId: context.user.id,
+    },
+  });
+
+  return true;
+}
+
+export async function updateTank(tank: Tank, context: any) {
+  if (!context.user) {
+    throw new HttpError(401, "You must be logged in to add a tank.");
+  }
+
+  if (
+    !tank ||
+    !tank.agility ||
+    !tank.armor ||
+    !tank.accuracy ||
+    !tank.attackPower ||
+    !tank.color
+  ) {
+    throw new HttpError(
+      400,
+      "Tank must have agility, armor, accuracy, attackPower, and color."
+    );
+  }
+
+  // Ensure that the total of the tank's stats is less than or equal to 20.
+  const sum = tank.agility + tank.armor + tank.accuracy + tank.attackPower;
+  if (sum > 20 || sum < 0) {
+    throw new HttpError(
+      400,
+      "Total of tank's stats must be less than or equal to 20 and greater than 0."
+    );
+  }
+
+  // Add the tank to the database.
+  await context.entities.Tank.update({
+    where: { id: tank.id, userId: context.user.id },
+    data: {
+      agility: tank.agility,
+      armor: tank.armor,
+      accuracy: tank.accuracy,
+      attackPower: tank.attackPower,
+      color: tank.color,
     },
   });
 

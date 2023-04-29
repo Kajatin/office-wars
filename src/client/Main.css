@@ -1,7 +1,12 @@
+@import url("https://fonts.googleapis.com/icon?family=Material+Icons");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
   background-color: rgb(250 250 249);
+}
+
+.material-icons {
+  font-size: inherit;
 }
