@@ -1,0 +1,11 @@
+app ProjectBird {
+  wasp: {
+    version: "^0.10.2"
+  },
+  title: "project-bird"
+}
+
+route RootRoute { path: "/", to: MainPage }
+page MainPage {
+  component: import Main from "@client/MainPage.jsx"
+}
