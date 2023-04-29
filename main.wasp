@@ -36,6 +36,16 @@ query getTank {
   entities: [Tank]
 }
 
+query getGame {
+  fn: import { getGame } from "@server/queries.js",
+  entities: [Game, User]
+}
+
+query getUsersForGame {
+  fn: import { getUsersForGame } from "@server/queries.js",
+  entities: [Game, User]
+}
+
 action addTank {
   fn: import { addTank } from "@server/actions.js",
   entities: [Tank]
@@ -51,11 +61,28 @@ action removeTank {
   entities: [Tank]
 }
 
+action generateGame {
+  fn: import { generateGame } from "@server/actions.js",
+  entities: [Game]
+}
+
+action abandonGame {
+  fn: import { abandonGame } from "@server/actions.js",
+  entities: [User]
+}
+
+action joinGame {
+  fn: import { joinGame } from "@server/actions.js",
+  entities: [Game]
+}
+
 entity User {=psl
   id       Int    @id @default(autoincrement())
   username String @unique
   password String
   tank     Tank?
+  game     Game?  @relation(fields: [gameId], references: [id])
+  gameId   Int?   @unique
 psl=}
 
 entity Tank {=psl
@@ -67,4 +94,13 @@ entity Tank {=psl
   accuracy    Int    @default(1)
   attackPower Int    @default(1)
   color       String @default("353f4a")
+psl=}
+
+entity Game {=psl
+  id         Int       @id @default(autoincrement())
+  code       String    @unique
+  users      User[]
+  state      String    @default("lobby") // should be an enum but that's not supported yet
+  started_at DateTime?
+  ended_at   DateTime?
 psl=}

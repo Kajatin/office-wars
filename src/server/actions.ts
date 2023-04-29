@@ -1,5 +1,5 @@
 import HttpError from "@wasp/core/HttpError.js";
-import type { Tank } from "@wasp/entities";
+import type { Tank, Game } from "@wasp/entities";
 
 export async function addTank(tank: Tank, context: any) {
   if (!context.user) {
@@ -105,6 +105,78 @@ export async function removeTank(tankId: number, context: any) {
   }
 
   await context.entities.Tank.delete({ where: { id: tankId } });
+
+  return true;
+}
+
+function generateRandomString() {
+  let result = "";
+  for (let i = 0; i < 4; i++) {
+    // Generate a random number between 0 and 25, and add it to 65 to get a character code for A-Z
+    let charCode = Math.floor(Math.random() * 26) + 65;
+    result += String.fromCharCode(charCode);
+  }
+  return result.toUpperCase();
+}
+
+export async function generateGame(args: any, context: any): Promise<Game> {
+  if (!context.user) {
+    throw new HttpError(401, "You must be logged in to generate a game.");
+  }
+
+  const gameCode = generateRandomString();
+
+  const game = await context.entities.Game.create({
+    data: {
+      code: gameCode,
+      users: {
+        connect: {
+          id: context.user.id,
+        },
+      },
+    },
+  });
+
+  return game;
+}
+
+export async function abandonGame(args: any, context: any): Promise<boolean> {
+  if (!context.user) {
+    throw new HttpError(401, "You must be logged in to generate a game.");
+  }
+
+  await context.entities.User.update({
+    where: { id: context.user.id },
+    data: {
+      gameId: null,
+    },
+  });
+
+  return true;
+}
+
+export async function joinGame(
+  gameCode: string,
+  context: any
+): Promise<boolean> {
+  if (!context.user) {
+    throw new HttpError(401, "You must be logged in to generate a game.");
+  }
+
+  if (!gameCode) {
+    throw new HttpError(400, "You must provide a game ID.");
+  }
+
+  await context.entities.Game.update({
+    where: { code: gameCode },
+    data: {
+      users: {
+        connect: {
+          id: context.user.id,
+        },
+      },
+    },
+  });
 
   return true;
 }

@@ -11,7 +11,6 @@ export default function Login() {
   const history = useHistory();
 
   const { data: user } = useAuth();
-  console.log("user: ", user);
 
   useEffect(() => {
     if (user) {

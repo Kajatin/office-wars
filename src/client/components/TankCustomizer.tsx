@@ -35,8 +35,6 @@ export default function TankCustomizer(props: { user: User }) {
 
   useEffect(() => {
     if (tank) {
-      console.log(tank.agility, agility, tank.agility !== agility);
-
       setChanged(
         tank.agility !== agility ||
           tank.armor !== armor ||
