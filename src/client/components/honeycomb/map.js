@@ -36,7 +36,9 @@ export default class Map {
     return this.getHex(hex.q, hex.r);
   }
 
-  getHex(q, r) {}
+  getHex(q, r) {
+    return this.map.find((hex) => hex.q === q && hex.r === r);
+  }
 
   getHexes() {
     return this.map;

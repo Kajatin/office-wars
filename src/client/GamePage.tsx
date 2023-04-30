@@ -8,7 +8,7 @@ import ArenaP5 from "./components/ArenaP5";
 import logout from "@wasp/auth/logout";
 import getGame from "@wasp/queries/getGame";
 import getTank from "@wasp/queries/getTank";
-import getFOV from "@wasp/queries/getFOV"
+import getFOV from "@wasp/queries/getFOV";
 import LoadingSpinner from "./components/LoadingSpinner";
 
 export default function GamePage({ user }: { user: User }) {
@@ -62,21 +62,21 @@ function Arena(props: { game: any | null }) {
   const { data: fov } = useQuery(getFOV);
 
   return (
-  <div>
-    <div className="flex flex-col gap-2">
-      <div className="">{JSON.stringify(game)}</div>
-      <div className="">{JSON.stringify(tank)}</div>
-      <div className="">{JSON.stringify(fov)}</div>
-    </div>
-    <div className="w-full h-full">
-      {isFetching ? (
-        <LoadingSpinner />
-      ) : error ? (
-        <div>Error: {error}</div>
-      ) : (
-        <ArenaP5 game={game} tank={tank} />
-      )}
+    <div>
+      <div className="flex flex-col gap-2">
+        <div className="bg-red-100">{JSON.stringify(game)}</div>
+        <div className="bg-green-100">{JSON.stringify(tank)}</div>
+        <div className="bg-blue-100">{JSON.stringify(fov)}</div>
       </div>
-  </div>
+      <div className="w-full h-full">
+        {isFetching ? (
+          <LoadingSpinner />
+        ) : error ? (
+          <div>Error: {error}</div>
+        ) : (
+          <ArenaP5 game={game} tank={tank} fov={fov} />
+        )}
+      </div>
+    </div>
   );
 }

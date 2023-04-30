@@ -1,5 +1,5 @@
 import HttpError from "@wasp/core/HttpError.js";
-import type { Tank, Game, Board, Turn } from "@wasp/entities";
+import type { Tank, Game, User } from "@wasp/entities";
 
 export async function addTank(tank: Tank, context: any) {
   if (!context.user) {
@@ -57,7 +57,7 @@ export async function updateTank(tank: Tank, context: any) {
   if (game && game.state !== "lobby") {
     throw new HttpError(
       403,
-  "You cannot update a tank while you are in a game."
+      "You cannot update a tank while you are in a game."
     );
   }
 
@@ -182,17 +182,21 @@ export async function generateGame(args: any, context: any): Promise<Game> {
     data: {
       game: {
         connect: {
-          id: game.id
-        }
+          id: game.id,
+        },
       },
-      state: "Demo"
-    }
+      state: "Demo",
+    },
   });
 
   await context.entities.Game.update({
     where: { id: game.id },
     data: {
-      board: board,
+      board: {
+        connect: {
+          id: board.id,
+        },
+      },
     },
   });
 
@@ -317,36 +321,42 @@ export async function launchGame(
     },
     select: {
       id: true,
-      users: true
-    }
+      users: {
+        exclude: {
+          password: true,
+        },
+      },
+    },
   });
 
-  game_updated.users.forEach( async (user) => { 
-    const q =  Math.floor(Math.random() * 10) + 1;
-    const r =  Math.floor(Math.random() * 10) + 1;
+  game_updated.users.forEach(async (user: User) => {
+    const q = Math.floor(Math.random() * 10) + 1;
+    const r = Math.floor(Math.random() * 10) + 1;
     const move = {
       action: "spawn",
       q: q,
-      r: r
-    }
+      r: r,
+    };
     await context.entities.Turn.create({
-      data: { 
+      data: {
         gameId: game_updated.id,
         userId: user.id,
         move: JSON.stringify(move),
         ended_at: new Date(),
-        current: false
-      } 
-    })
-  })
+        current: false,
+      },
+    });
+  });
 
-  const first_turn = { gameId: game_updated.id, userId: user.id, move: JSON.stringify({}), current: true} 
+  const first_turn = {
+    gameId: game_updated.id,
+    userId: user.id,
+    move: JSON.stringify({}),
+    current: true,
+  };
   await context.entities.Turn.create({
-    data: first_turn
-  })
+    data: first_turn,
+  });
 
   return true;
 }
-
-
-

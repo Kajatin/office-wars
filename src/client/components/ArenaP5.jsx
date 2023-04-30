@@ -6,7 +6,7 @@ import Game from './honeycomb/game';
 import {pointy} from './honeycomb/layout';
 
 function ArenaP5(props) {
-  const {game, tank} = props;
+  const {game, tank, fov} = props;
 
   const canvasRef = useRef(null);
 
