@@ -11,7 +11,7 @@ import joinGame from "@wasp/actions/joinGame";
 import abandonGame from "@wasp/actions/abandonGame";
 import generateGame from "@wasp/actions/generateGame";
 
-export default function TankCustomizer(props: { user: User }) {
+export default function GameHandler(props: { user: User }) {
   const { user } = props;
   const { data: game, isFetching, error } = useQuery(getGame);
 
