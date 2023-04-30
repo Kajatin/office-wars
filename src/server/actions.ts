@@ -1,5 +1,5 @@
 import HttpError from "@wasp/core/HttpError.js";
-import type { Tank, Game, Board } from "@wasp/entities";
+import type { Tank, Game, Board, Turn } from "@wasp/entities";
 
 export async function addTank(tank: Tank, context: any) {
   if (!context.user) {
@@ -57,7 +57,7 @@ export async function updateTank(tank: Tank, context: any) {
   if (game && game.state !== "lobby") {
     throw new HttpError(
       403,
-      "You cannot update a tank while you are in a game."
+  "You cannot update a tank while you are in a game."
     );
   }
 
@@ -309,13 +309,44 @@ export async function launchGame(
     throw new HttpError(400, 'Game is not in the "lobby" state.');
   }
 
-  await context.entities.Game.update({
+  const game_updated = await context.entities.Game.update({
     where: { id: gameId },
     data: {
       state: "playing",
       started_at: new Date(),
     },
+    select: {
+      id: true,
+      users: true
+    }
   });
+
+  game_updated.users.forEach( async (user) => { 
+    const q =  Math.floor(Math.random() * 10) + 1;
+    const r =  Math.floor(Math.random() * 10) + 1;
+    const move = {
+      action: "spawn",
+      q: q,
+      r: r
+    }
+    await context.entities.Turn.create({
+      data: { 
+        gameId: game_updated.id,
+        userId: user.id,
+        move: JSON.stringify(move),
+        ended_at: new Date(),
+        current: false
+      } 
+    })
+  })
+
+  const first_turn = { gameId: game_updated.id, userId: user.id, move: JSON.stringify({}), current: true} 
+  await context.entities.Turn.create({
+    data: first_turn
+  })
 
   return true;
 }
+
+
+

@@ -6,6 +6,7 @@ import { useQuery } from "@wasp/queries";
 import logout from "@wasp/auth/logout";
 import getGame from "@wasp/queries/getGame";
 import getTank from "@wasp/queries/getTank";
+import getFOV from "@wasp/queries/getFOV"
 
 export default function GamePage({ user }: { user: User }) {
   const { data: game, isFetching, error } = useQuery(getGame);
@@ -55,11 +56,13 @@ export default function GamePage({ user }: { user: User }) {
 function Arena(props: { game: any | null }) {
   const { game } = props;
   const { data: tank, isFetching, error } = useQuery(getTank);
+  const { data: fov } = useQuery(getFOV);
 
   return (
     <div className="flex flex-col gap-2">
       <div className="">{JSON.stringify(game)}</div>
       <div className="">{JSON.stringify(tank)}</div>
+      <div className="">{JSON.stringify(fov)}</div>
     </div>
   );
 }

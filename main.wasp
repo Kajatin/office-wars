@@ -51,6 +51,16 @@ query getGame {
   entities: [Game, User]
 }
 
+query turnPolling {
+  fn: import {turnPolling} from "@server/queries.js",
+  entities: [Turn]
+}
+
+query getFOV {
+  fn: import { getFOV } from "@server/queries.js",
+  entities: [Game]
+}
+
 // 📝 Actions
 
 action addTank {
@@ -85,7 +95,7 @@ action joinGame {
 
 action launchGame {
   fn: import { launchGame } from "@server/actions.js",
-  entities: [Game, User]
+  entities: [Game, User, Turn]
 }
 
 // 📦 Entities
@@ -97,6 +107,7 @@ entity User {=psl
   tank     Tank?
   game     Game?  @relation(fields: [gameId], references: [id])
   gameId   Int?
+  turns    Turn[]
 psl=}
 
 entity Tank {=psl
@@ -118,6 +129,8 @@ entity Game {=psl
   started_at  DateTime?
   ended_at    DateTime?
   board       Board?
+  turns       Turn[]
+  curr_player Int       @default(0)
 psl=}
 
 entity Board {=psl
@@ -125,4 +138,16 @@ entity Board {=psl
   game    Game    @relation(fields: [gameId], references: [id])
   gameId  Int     @unique 
   state   String    
+psl=}
+
+entity Turn {=psl
+  id          Int       @id @default(autoincrement())
+  game        Game      @relation(fields: [gameId], references: [id])
+  gameId      Int      
+  user        User      @relation(fields: [userId], references: [id])
+  userId      Int
+  move        String
+  started_at  DateTime  @default(now())
+  ended_at    DateTime?
+  current     Boolean   @default(true)
 psl=}
