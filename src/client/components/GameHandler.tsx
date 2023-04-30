@@ -124,7 +124,6 @@ function RejoinGame(props: { game: any | null }) {
               return;
             }
 
-            launchGame(game.id);
             history.push("/game");
           } catch (err) {
             console.log(err);
