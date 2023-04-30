@@ -321,11 +321,7 @@ export async function launchGame(
     },
     select: {
       id: true,
-      users: {
-        exclude: {
-          password: true,
-        },
-      },
+      users: true,
     },
   });
 

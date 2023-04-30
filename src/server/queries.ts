@@ -40,46 +40,45 @@ export async function getGame(args: any, context: any): Promise<Game | null> {
   });
 }
 
-export const turnPolling = ({gameId}, context) => {
-    return context.entities.Turn.findUnique({
-        where: { 
-          gameId: gameId,
-          current: true
-        },
-        select: {
-          user: true
-        }
-    })
-}
+export const turnPolling = ({ gameId }, context: any) => {
+  return context.entities.Turn.findUnique({
+    where: {
+      gameId: gameId,
+      current: true,
+    },
+    select: {
+      user: true,
+    },
+  });
+};
 
-export const getFOV = async ({}, context) => {
+export const getFOV = async ({}, context: any) => {
   // TODO add validations
 
   // get user game
   const game = await context.entities.Game.findUnique({
     where: {
-      id: context.user.gameId
-    }
-  })
-
-  console.log(game)
+      id: context.user.gameId,
+    },
+  });
 
   return {
     width: 40,
     height: 40,
     position: {
-      q:0, r:0
+      q: 0,
+      r: 0,
     },
     fov: [
-      { q: 0, r: 0, kind: "plain", ontop: ""},
-      { q: 0, r: -1, kind: "plain", ontop: ""},
-      { q: 1, r: -1, kind: "plain", ontop: ""},
-      { q: -1, r: 0, kind: "plain", ontop: ""},
-      { q: 1, r: 0, kind: "plain", ontop: ""},
-      { q: -1, r: 1, kind: "plain", ontop: ""},
-      { q: 0, r: 1, kind: "plain", ontop: ""},
-    ]
-  } 
-}
+      { q: 0, r: 0, kind: "plain", ontop: "" },
+      { q: 0, r: -1, kind: "plain", ontop: "" },
+      { q: 1, r: -1, kind: "plain", ontop: "" },
+      { q: -1, r: 0, kind: "plain", ontop: "" },
+      { q: 1, r: 0, kind: "plain", ontop: "" },
+      { q: -1, r: 1, kind: "plain", ontop: "" },
+      { q: 0, r: 1, kind: "plain", ontop: "" },
+    ],
+  };
+};
 
 
