@@ -43,7 +43,7 @@ query getGame {
 
 query getUsersForGame {
   fn: import { getUsersForGame } from "@server/queries.js",
-  entities: [Game, User]
+  entities: [Game, User, Tank]
 }
 
 action addTank {
@@ -53,17 +53,17 @@ action addTank {
 
 action updateTank {
   fn: import { updateTank } from "@server/actions.js",
-  entities: [Tank]
+  entities: [Tank, Game]
 }
 
 action removeTank {
   fn: import { removeTank } from "@server/actions.js",
-  entities: [Tank]
+  entities: [Tank, Game]
 }
 
 action generateGame {
   fn: import { generateGame } from "@server/actions.js",
-  entities: [Game]
+  entities: [Game, User]
 }
 
 action abandonGame {
@@ -73,7 +73,7 @@ action abandonGame {
 
 action joinGame {
   fn: import { joinGame } from "@server/actions.js",
-  entities: [Game]
+  entities: [Game, User]
 }
 
 entity User {=psl

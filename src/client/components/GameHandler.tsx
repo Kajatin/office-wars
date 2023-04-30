@@ -3,9 +3,10 @@ import { useQuery } from "@wasp/queries";
 
 import { useEffect, useState } from "react";
 
+import LoadingSpinner from "./LoadingSpinner";
+
 import getGame from "@wasp/queries/getGame";
 import getUsersForGame from "@wasp/queries/getUsersForGame";
-
 import joinGame from "@wasp/actions/joinGame";
 import abandonGame from "@wasp/actions/abandonGame";
 import generateGame from "@wasp/actions/generateGame";
@@ -22,15 +23,15 @@ export default function TankCustomizer(props: { user: User }) {
   }, [game]);
 
   return (
-    <div className="flex flex-col gap-2 w-full h-full sm:w-fit justify-center rounded px-4 py-2">
-      <div className="flex justify-between font-medium text-3xl py-1 border-b items-center">
-        <span>Game Lobby</span>
+    <div className="flex flex-col flex-grow min-w-[24rem] gap-2 w-full h-full sm:w-fit justify-center px-4 py-2">
+      <div className="flex justify-between font-medium text-3xl py-1 border-b items-baseline">
+        <span className="text-indigo-500">Game Lobby</span>
         <span className="text-base font-normal opacity-70">
           {numPlayers} player{numPlayers === 1 ? "" : "s"}
         </span>
       </div>
       {isFetching ? (
-        <div>Loading...</div>
+        <LoadingSpinner />
       ) : error ? (
         <div>Error: {error.message}</div>
       ) : game ? (
@@ -46,7 +47,7 @@ export default function TankCustomizer(props: { user: User }) {
           </div>
 
           <button
-            className="w-full px-8 rounded border font-medium hover:bg-indigo-50 hover:border-indigo-400 py-1 text-stone-700 hover:text-indigo-600"
+            className="w-full px-8 bg-white rounded border font-medium hover:bg-indigo-50 hover:border-indigo-400 py-1 text-stone-700 hover:text-indigo-600"
             onClick={() => {}}
           >
             <div className="flex flex-row gap-1 justify-center">
@@ -56,9 +57,14 @@ export default function TankCustomizer(props: { user: User }) {
           </button>
 
           <button
-            className="w-full px-8 rounded border font-medium hover:bg-pink-50 hover:border-pink-400 py-1 text-stone-700 hover:text-pink-600"
+            className="w-full px-8 bg-white rounded border font-medium hover:bg-pink-50 hover:border-pink-400 py-1 text-stone-700 hover:text-pink-600"
             onClick={() => {
-              abandonGame(null);
+              try {
+                abandonGame(null);
+              } catch (err) {
+                console.log(err);
+                window.alert(err);
+              }
             }}
           >
             <div className="flex flex-row gap-1 justify-center">
@@ -69,22 +75,6 @@ export default function TankCustomizer(props: { user: User }) {
         </div>
       ) : (
         <>
-          <button
-            className="w-full px-8 rounded border font-medium hover:bg-indigo-50 hover:border-indigo-400 py-1 text-stone-700 hover:text-indigo-600"
-            onClick={async () => {
-              await generateGame(null);
-              setCode("");
-            }}
-          >
-            Generate Game
-          </button>
-
-          <div className="flex items-center my-2">
-            <div className="border-b border-stone-400 flex-1 mr-2"></div>
-            <span className="text-stone-500 font-medium">OR</span>
-            <div className="border-b border-stone-400 flex-1 ml-2"></div>
-          </div>
-
           <input
             className="w-full text-center uppercase text-2xl rounded border font-medium hover:bg-indigo-50 hover:border-indigo-400 focus:bg-indigo-50 focus:border-indigo-400 py-1 text-stone-700 hover:text-indigo-600 focus:text-indigo-600 outline-none"
             placeholder="dtyz"
@@ -95,17 +85,43 @@ export default function TankCustomizer(props: { user: User }) {
           ></input>
 
           <button
-            className="w-full px-8 rounded border font-medium hover:bg-indigo-50 hover:border-indigo-400 py-1 text-stone-700 hover:text-indigo-600"
+            className="w-full px-8 bg-white rounded border font-medium hover:bg-indigo-50 hover:border-indigo-400 py-1 text-stone-700 hover:text-indigo-600"
             onClick={async () => {
-              if (!code) {
-                return;
-              }
+              try {
+                if (!code) {
+                  return;
+                }
 
-              await joinGame(code);
-              setCode("");
+                await joinGame(code);
+                setCode("");
+              } catch (err) {
+                console.log(err);
+                window.alert(err);
+              }
             }}
           >
             Join Lobby
+          </button>
+
+          <div className="flex items-center my-2">
+            <div className="border-b border-stone-400 flex-1 mr-2"></div>
+            <span className="text-stone-500 font-medium">OR</span>
+            <div className="border-b border-stone-400 flex-1 ml-2"></div>
+          </div>
+
+          <button
+            className="w-full px-8 bg-white rounded border font-medium hover:bg-indigo-50 hover:border-indigo-400 py-1 text-stone-700 hover:text-indigo-600"
+            onClick={async () => {
+              try {
+                await generateGame(null);
+                setCode("");
+              } catch (err) {
+                console.log(err);
+                window.alert(err);
+              }
+            }}
+          >
+            New Game
           </button>
         </>
       )}
@@ -128,16 +144,19 @@ function PlayerLobby(props: { setNumPlayers: (numPlayers: number) => void }) {
   return (
     <div className="flex flex-row gap-1 flex-wrap">
       {isFetching ? (
-        <div>Loading...</div>
+        <LoadingSpinner />
       ) : error ? (
-        <div>Error: {error.message}</div>
+        <div>Error: {error}</div>
       ) : players ? (
-        players.map((player) => (
-          <div className="flex flex-col items-center justify-center gap-1 animate-bounce">
+        players?.map((player) => (
+          <div
+            key={player.id}
+            className="flex flex-col items-center justify-center gap-1 animate-bounce"
+          >
             <div
               className="w-6 h-6 rounded-full border"
               style={{
-                background: player.tank.color,
+                background: player?.tank?.color,
               }}
             ></div>
             <div className="text-xs">{player.username}</div>

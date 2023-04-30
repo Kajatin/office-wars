@@ -3,6 +3,8 @@ import { useQuery } from "@wasp/queries";
 
 import { useState, useEffect } from "react";
 
+import LoadingSpinner from "./LoadingSpinner";
+
 import logout from "@wasp/auth/logout";
 import getTank from "@wasp/queries/getTank";
 import addTank from "@wasp/actions/addTank";
@@ -48,8 +50,8 @@ export default function TankCustomizer(props: { user: User }) {
   }, [agility, armor, accuracy, attackPower, color, tank]);
 
   return (
-    <div className="flex flex-col w-full h-full sm:w-fit justify-center">
-      <div className="rounded px-4 py-2">
+    <div className="flex flex-col min-w-[24rem] w-full h-full sm:w-fit justify-center">
+      <div className="rounded-lg px-4 pt-2 pb-4 drop-shadow-md bg-white">
         <div className="flex flex-row justify-between font-medium text-2xl py-1 border-b items-center">
           <div className="flex flex-row gap-1">
             <input
@@ -75,7 +77,7 @@ export default function TankCustomizer(props: { user: User }) {
           </button>
         </div>
         {isFetching ? (
-          <div>Loading...</div>
+          <LoadingSpinner />
         ) : error ? (
           <div>Error: {error.message}</div>
         ) : (
@@ -192,7 +194,7 @@ function Ability(props: {
             "flex rounded p-1 text-lg text-stone-600 " +
             (value <= 0
               ? "opacity-50"
-              : "hover:text-stone-900 hover:bg-stone-200")
+              : "hover:text-stone-900 hover:bg-stone-100")
           }
           disabled={value <= 0}
           onClick={() => {
@@ -221,7 +223,7 @@ function Ability(props: {
             "flex rounded p-1 text-lg text-stone-600 " +
             (value >= 10 || abilityPoints <= 0
               ? "opacity-50"
-              : "hover:text-stone-900 hover:bg-stone-200")
+              : "hover:text-stone-900 hover:bg-stone-100")
           }
           disabled={value >= 10 || abilityPoints <= 0}
           onClick={() => {
