@@ -22,9 +22,8 @@ function ArenaP5(props) {
 
         // Set the color mode to RGB
         p5.colorMode(p5.RGB);
-        p5.background(250);
 
-        gameOld = new Game(fov, tank, pointy, p5.createVector(20, 20), p5.createVector(p5.width / 2, 0));
+        gameOld = new Game(fov, tank, pointy, p5.createVector(30, 30), p5.createVector(0, 0));
       };
 
       p5.draw = () => {
