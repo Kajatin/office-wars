@@ -75,7 +75,7 @@ function GameLobby(props: { game: any | null }) {
             launchGame(game.id);
             history.push("/game");
           } catch (err) {
-            console.log(err);
+            console.error(err);
             window.alert(err);
           }
         }}
@@ -92,7 +92,7 @@ function GameLobby(props: { game: any | null }) {
           try {
             abandonGame(null);
           } catch (err) {
-            console.log(err);
+            console.error(err);
             window.alert(err);
           }
         }}
@@ -126,7 +126,7 @@ function RejoinGame(props: { game: any | null }) {
 
             history.push("/game");
           } catch (err) {
-            console.log(err);
+            console.error(err);
             window.alert(err);
           }
         }}
@@ -143,7 +143,7 @@ function RejoinGame(props: { game: any | null }) {
           try {
             abandonGame(null);
           } catch (err) {
-            console.log(err);
+            console.error(err);
             window.alert(err);
           }
         }}
@@ -188,7 +188,7 @@ function GameCreation() {
             await joinGame(code);
             setCode("");
           } catch (err) {
-            console.log(err);
+            console.error(err);
             window.alert(err);
           }
         }}
@@ -209,7 +209,7 @@ function GameCreation() {
             await generateGame(null);
             setCode("");
           } catch (err) {
-            console.log(err);
+            console.error(err);
             window.alert(err);
           }
         }}
