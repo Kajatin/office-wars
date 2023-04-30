@@ -137,7 +137,7 @@ export default function TankCustomizer(props: { user: User }) {
                         await addTank(newTank);
                       }
                     } catch (err) {
-                      console.log(err);
+                      console.error(err);
                       window.alert(err);
                     }
                   }}
@@ -160,7 +160,7 @@ export default function TankCustomizer(props: { user: User }) {
 
                       await removeTank(tank.id);
                     } catch (err) {
-                      console.log(err);
+                      console.error(err);
                       window.alert(err);
                     }
                   }}

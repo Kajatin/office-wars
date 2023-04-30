@@ -3,9 +3,12 @@ import { useHistory } from "react-router-dom";
 import { User } from "@wasp/entities";
 import { useQuery } from "@wasp/queries";
 
+import ArenaP5 from "./components/ArenaP5";
+
 import logout from "@wasp/auth/logout";
 import getGame from "@wasp/queries/getGame";
 import getTank from "@wasp/queries/getTank";
+import LoadingSpinner from "./components/LoadingSpinner";
 
 export default function GamePage({ user }: { user: User }) {
   const { data: game, isFetching, error } = useQuery(getGame);
@@ -57,9 +60,14 @@ function Arena(props: { game: any | null }) {
   const { data: tank, isFetching, error } = useQuery(getTank);
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="">{JSON.stringify(game)}</div>
-      <div className="">{JSON.stringify(tank)}</div>
+    <div className="w-full h-full">
+      {isFetching ? (
+        <LoadingSpinner />
+      ) : error ? (
+        <div>Error: {error}</div>
+      ) : (
+        <ArenaP5 game={game} tank={tank} />
+      )}
     </div>
   );
 }
