@@ -112,17 +112,21 @@ export default class Hex {
   }
 
   linedraw(b) {
-    let N = this.distance(b);
-    let a_nudge = new Hex(
-      this.q + 0.000001,
-      this.r + 0.000001,
-      this.s - 0.000002
-    );
-    let b_nudge = new Hex(b.q + 0.000001, b.r + 0.000001, b.s - 0.000002);
     let results = [];
-    let step = 1.0 / Math.max(N, 1);
-    for (let i = 0; i <= N; i++) {
-      results.push(a_nudge.lerp(b_nudge, step * i).round());
+    try {
+      let N = this.distance(b);
+      let a_nudge = new Hex(
+        this.q + 0.000001,
+        this.r + 0.000001,
+        this.s - 0.000002
+      );
+      let b_nudge = new Hex(b.q + 0.000001, b.r + 0.000001, b.s - 0.000002);
+      let step = 1.0 / Math.max(N, 1);
+      for (let i = 0; i <= N; i++) {
+        results.push(a_nudge.lerp(b_nudge, step * i).round());
+      }
+    } catch (e) {
+      console.log(e);
     }
     return results;
   }

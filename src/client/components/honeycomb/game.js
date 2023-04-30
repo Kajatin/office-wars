@@ -2,9 +2,9 @@ import Map from "./map";
 import Layout from "./layout";
 
 export default class Game {
-  constructor(n, orientation, size, origin) {
+  constructor(fov, tank, orientation, size, origin) {
     this.layout = new Layout(orientation, size, origin);
-    this.map = new Map(n, this.layout);
+    this.map = new Map(fov, tank, this.layout);
   }
 
   hexFromPixelCoords(x, y) {

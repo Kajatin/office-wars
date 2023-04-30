@@ -24,7 +24,7 @@ function ArenaP5(props) {
         p5.colorMode(p5.RGB);
         p5.background(250);
 
-        gameOld = new Game(20, pointy, p5.createVector(20, 20), p5.createVector(p5.width / 2, 0));
+        gameOld = new Game(fov, tank, pointy, p5.createVector(20, 20), p5.createVector(p5.width / 2, 0));
       };
 
       p5.draw = () => {
@@ -40,7 +40,7 @@ function ArenaP5(props) {
     return () => {
       sketch.remove();
     };
-  }, [canvasRef]);
+  }, [canvasRef, fov]);
 
   return <div ref={canvasRef} style={{ height: 'calc(100vh - 4.2rem)', width: 'calc(100vw - 1.5rem)' }} />;
 }

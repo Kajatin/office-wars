@@ -1,20 +1,35 @@
 import Hex from "./hex";
 
 export default class Map {
-  constructor(n, layout) {
+  constructor(fov, tank, layout) {
     this.map = [];
     this.layout = layout;
 
-    for (let row = 0; row <= 2 * n; row++) {
-      for (let col = -n; col <= n; col++) {
+    const rows = fov?.height || 1;
+    const cols = fov?.width || 1;
+    const pos = fov?.position || { q: 0, r: 0 };
+    for (let row = 0; row <= rows; row++) {
+      for (let col = 0; col <= cols; col++) {
         let { q, r, s } = Hex.offset_to_axial(row, col);
         this.map.push(new Hex(q, r, s));
+
+        if (pos.q === q && pos.r === r) {
+          const hexColor = tank?.color?.replace("#", "") || "fcba03";
+          var bigint = parseInt(hexColor, 16);
+          var cr = (bigint >> 16) & 255;
+          var cg = (bigint >> 8) & 255;
+          var cb = bigint & 255;
+          this.map[this.map.length - 1].props.setColor(
+            window.p5.color(cr, cg, cb)
+          );
+        }
       }
     }
   }
 
   selectHex(x, y) {
     let hex = this.getHexFromPixelCoords(x, y);
+    if (!hex) return;
 
     //let neighbors = this.getNeighbors(hex);
     //neighbors.forEach(neighbor => neighbor.props.setColor(125));
@@ -22,7 +37,7 @@ export default class Map {
     let fov = this.getHexesWithinDistance(hex, 3);
     fov.forEach((neighbor) => neighbor.props.setColor(125));
 
-    let line = hex.linedraw(this.getHexFromPixelCoords(700, 500));
+    let line = hex.linedraw(this.getHexFromPixelCoords(450, 200));
     line.forEach((seg) => {
       let hex = this.getHex(seg.q, seg.r);
       hex.props.setColor(90);
