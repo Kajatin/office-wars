@@ -82,7 +82,7 @@ entity User {=psl
   password String
   tank     Tank?
   game     Game?  @relation(fields: [gameId], references: [id])
-  gameId   Int?   @unique
+  gameId   Int?
 psl=}
 
 entity Tank {=psl

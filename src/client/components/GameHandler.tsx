@@ -142,7 +142,7 @@ function PlayerLobby(props: { setNumPlayers: (numPlayers: number) => void }) {
   }, [players]);
 
   return (
-    <div className="flex flex-row gap-1 flex-wrap">
+    <div className="flex flex-row gap-3 flex-wrap">
       {isFetching ? (
         <LoadingSpinner />
       ) : error ? (
