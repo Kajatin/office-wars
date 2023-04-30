@@ -30,6 +30,12 @@ export async function getGame(args: any, context: any): Promise<Game | null> {
           tank: { select: { color: true } },
         },
       },
+      board: {
+        select: {
+          id: true,
+          state: true
+        }
+      }
     },
   });
 }

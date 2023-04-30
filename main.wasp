@@ -70,7 +70,7 @@ action removeTank {
 
 action generateGame {
   fn: import { generateGame } from "@server/actions.js",
-  entities: [Game, User]
+  entities: [Game, User, Board]
 }
 
 action abandonGame {
@@ -111,10 +111,18 @@ entity Tank {=psl
 psl=}
 
 entity Game {=psl
-  id         Int       @id @default(autoincrement())
-  code       String    @unique
-  users      User[]
-  state      String    @default("lobby") // should be an enum but that's not supported yet
-  started_at DateTime?
-  ended_at   DateTime?
+  id          Int       @id @default(autoincrement())
+  code        String    @unique
+  users       User[]
+  state       String    @default("lobby") // should be an enum but that's not supported yet
+  started_at  DateTime?
+  ended_at    DateTime?
+  board       Board?
+psl=}
+
+entity Board {=psl
+  id      Int     @id @default(autoincrement())
+  game    Game    @relation(fields: [gameId], references: [id])
+  gameId  Int     @unique 
+  state   String    
 psl=}

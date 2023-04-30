@@ -1,5 +1,5 @@
 import HttpError from "@wasp/core/HttpError.js";
-import type { Tank, Game } from "@wasp/entities";
+import type { Tank, Game, Board } from "@wasp/entities";
 
 export async function addTank(tank: Tank, context: any) {
   if (!context.user) {
@@ -175,6 +175,24 @@ export async function generateGame(args: any, context: any): Promise<Game> {
           id: context.user.id,
         },
       },
+    },
+  });
+
+  const board = await context.entities.Board.create({
+    data: {
+      game: {
+        connect: {
+          id: game.id
+        }
+      },
+      state: "Demo"
+    }
+  });
+
+  await context.entities.Game.update({
+    where: { id: game.id },
+    data: {
+      board: board,
     },
   });
 
