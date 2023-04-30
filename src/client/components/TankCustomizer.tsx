@@ -73,13 +73,13 @@ export default function TankCustomizer(props: { user: User }) {
             className="flex self-center opacity-60 hover:opacity-100"
             onClick={logout}
           >
-            <span className="material-icons">logout</span>
+            <span className="material-symbols-outlined">logout</span>
           </button>
         </div>
         {isFetching ? (
           <LoadingSpinner />
         ) : error ? (
-          <div>Error: {error.message}</div>
+          <div>Error: {error}</div>
         ) : (
           <div className="justify-center content-center">
             <Tank color={color} changed={changed} />
@@ -138,13 +138,15 @@ export default function TankCustomizer(props: { user: User }) {
                       }
                     } catch (err) {
                       console.log(err);
-                      window.alert("Error: " + err);
+                      window.alert(err);
                     }
                   }}
                 >
                   <div className="flex flex-row gap-1 justify-center">
                     <span>{tank ? "Update" : "Save"}</span>
-                    <span className="material-icons self-center">upload</span>
+                    <span className="material-symbols-outlined self-center">
+                      upload
+                    </span>
                   </div>
                 </button>
 
@@ -159,13 +161,15 @@ export default function TankCustomizer(props: { user: User }) {
                       await removeTank(tank.id);
                     } catch (err) {
                       console.log(err);
-                      window.alert("Error: " + err);
+                      window.alert(err);
                     }
                   }}
                 >
                   <div className="flex flex-row gap-1 justify-center">
                     <span>Delete</span>
-                    <span className="material-icons self-center">delete</span>
+                    <span className="material-symbols-outlined self-center">
+                      delete
+                    </span>
                   </div>
                 </button>
               </div>
@@ -205,7 +209,7 @@ function Ability(props: {
             onChange(value - 1);
           }}
         >
-          <span className="material-icons">remove</span>
+          <span className="material-symbols-outlined">remove</span>
         </button>
         <div className="flex flex-row gap-3 mx-2">
           {Array.from({ length: 10 }).map((_, i) => (
@@ -234,7 +238,7 @@ function Ability(props: {
             onChange(value + 1);
           }}
         >
-          <span className="material-icons">add</span>
+          <span className="material-symbols-outlined">add</span>
         </button>
       </div>
     </div>

@@ -252,3 +252,52 @@ export async function joinGame(
 
   return true;
 }
+
+export async function launchGame(
+  gameId: number,
+  context: any
+): Promise<boolean> {
+  if (!context.user) {
+    throw new HttpError(401, "You must be logged in to generate a game.");
+  }
+
+  if (!gameId) {
+    throw new HttpError(400, "You must provide a game ID.");
+  }
+
+  // Ensure that the user is not already in a game and that they have a tank.
+  const user = await context.entities.User.findUnique({
+    where: { id: context.user.id },
+  });
+
+  if (!user) {
+    throw new HttpError(404, "User not found.");
+  }
+
+  if (!user.gameId || user.gameId !== gameId) {
+    throw new HttpError(403, "You are not part of this game.");
+  }
+
+  // Ensure that the game exists and is in the lobby state.
+  const game = await context.entities.Game.findUnique({
+    where: { id: gameId },
+  });
+
+  if (!game) {
+    throw new HttpError(404, "Game not found.");
+  }
+
+  if (game.state !== "lobby") {
+    throw new HttpError(400, 'Game is not in the "lobby" state.');
+  }
+
+  await context.entities.Game.update({
+    where: { id: gameId },
+    data: {
+      state: "playing",
+      started_at: new Date(),
+    },
+  });
+
+  return true;
+}

@@ -15,10 +15,18 @@ app ProjectBird {
   },
 }
 
+// 📡 Wasp Routes
+
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
   authRequired: true,
   component: import Main from "@client/MainPage"
+}
+
+route GameRoute { path: "/game", to: GamePage }
+page GamePage {
+  authRequired: true,
+  component: import GamePage from "@client/GamePage"
 }
 
 route SignupRoute { path: "/signup", to: SignupPage }
@@ -31,6 +39,8 @@ page LoginPage {
   component: import Login from "@client/auth/LoginPage"
 }
 
+// 📚 Queries
+
 query getTank {
   fn: import { getTank } from "@server/queries.js",
   entities: [Tank]
@@ -41,10 +51,7 @@ query getGame {
   entities: [Game, User]
 }
 
-query getUsersForGame {
-  fn: import { getUsersForGame } from "@server/queries.js",
-  entities: [Game, User, Tank]
-}
+// 📝 Actions
 
 action addTank {
   fn: import { addTank } from "@server/actions.js",
@@ -75,6 +82,13 @@ action joinGame {
   fn: import { joinGame } from "@server/actions.js",
   entities: [Game, User]
 }
+
+action launchGame {
+  fn: import { launchGame } from "@server/actions.js",
+  entities: [Game, User]
+}
+
+// 📦 Entities
 
 entity User {=psl
   id       Int    @id @default(autoincrement())
