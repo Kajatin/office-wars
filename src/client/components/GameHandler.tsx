@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useHistory } from "react-router-dom";
 
 import { User } from "@wasp/entities";
@@ -14,13 +14,27 @@ import generateGame from "@wasp/actions/generateGame";
 
 export default function GameHandler(props: { user: User }) {
   const { user } = props;
+
+  const history = useHistory();
   const { data: game, isFetching, error } = useQuery(getGame);
+  const prevGame = useRef(game); // Initialize the ref with the initial state
 
   const lobbyName =
     game?.state === "playing" ? "Game in progress" : "Game Lobby";
   const numPlayers = game?.users?.length || 0;
 
-  console.log("game", game);
+  useEffect(() => {
+    if (!game) {
+      return;
+    }
+
+    if (prevGame.current?.state === "lobby" && game.state === "playing") {
+      // Transition to the game page
+      history.push("/game");
+    }
+
+    prevGame.current = game; // Update the ref to the latest state after every render
+  }, [game]);
 
   return (
     <div className="flex flex-col flex-grow min-w-[24rem] gap-2 w-full h-full sm:w-fit justify-center px-4 py-2">
@@ -73,7 +87,6 @@ function GameLobby(props: { game: any | null }) {
             }
 
             launchGame(game.id);
-            history.push("/game");
           } catch (err) {
             console.error(err);
             window.alert(err);
