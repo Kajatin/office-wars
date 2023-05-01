@@ -33,8 +33,9 @@ export default class Map {
   }
 
   selectHex(x, y) {
-    x = x + this.center.x - window.p5.width / 2;
-    y = y + this.center.y - window.p5.height / 2;
+    // Remove the zoom and the center effect
+    x = (x - window.p5.width / 2) / this.zoom + this.center.x;
+    y = (y - window.p5.height / 2) / this.zoom + this.center.y;
 
     let hex = this.getHexFromPixelCoords(x, y);
     if (!hex) return;
