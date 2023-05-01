@@ -79,6 +79,7 @@ export default class Map {
 
   draw() {
     // center around the player
+    window.p5.push();
     let center = this.layout.hex_to_pixel(this.pos);
     window.p5.translate(
       window.p5.width / 2 - center.x,
@@ -98,5 +99,7 @@ export default class Map {
       });
       window.p5.endShape(window.p5.CLOSE);
     });
+
+    window.p5.pop();
   }
 }
