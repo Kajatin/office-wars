@@ -356,3 +356,7 @@ export async function launchGame(
 
   return true;
 }
+
+export const nextTurn = async () => {
+  console.log('The client said Hi!')
+}

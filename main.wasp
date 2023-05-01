@@ -61,7 +61,7 @@ query turnPolling {
 
 query getFOV {
   fn: import { getFOV } from "@server/queries.js",
-  entities: [Game]
+  entities: [Game, Turn]
 }
 
 // 📝 Actions
@@ -99,6 +99,11 @@ action joinGame {
 action launchGame {
   fn: import { launchGame } from "@server/actions.js",
   entities: [Game, User, Turn]
+}
+
+action nextTurn {
+  fn: import { nextTurn } from "@server/actions.js", 
+  entities: [Game, Turn]
 }
 
 // 📦 Entities

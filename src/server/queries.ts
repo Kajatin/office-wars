@@ -62,23 +62,41 @@ export const getFOV = async ({}, context: any) => {
     },
   });
 
-  return {
-    width: 40,
-    height: 40,
-    position: {
-      q: 0,
-      r: 0,
+  // check who turn it is
+  const curr_turn = await context.entities.Turn.findFirst({
+    where: { 
+      gameId: game.id,
+      current: true
     },
-    fov: [
-      { q: 0, r: 0, kind: "plain", ontop: "" },
-      { q: 0, r: -1, kind: "plain", ontop: "" },
-      { q: 1, r: -1, kind: "plain", ontop: "" },
-      { q: -1, r: 0, kind: "plain", ontop: "" },
-      { q: 1, r: 0, kind: "plain", ontop: "" },
-      { q: -1, r: 1, kind: "plain", ontop: "" },
-      { q: 0, r: 1, kind: "plain", ontop: "" },
-    ],
-  };
+    select: {
+      user: true
+    }
+  })
+
+  console.log(curr_turn)
+  console.log(context.user)
+
+  if (curr_turn.user.id != context.user.id) {
+    return {}
+  } else {
+    return {
+      width: 40,
+      height: 40,
+      position: {
+        q: 0,
+        r: 0,
+      },
+      fov: [
+        { q: 0, r: 0, kind: "plain", ontop: "" },
+        { q: 0, r: -1, kind: "plain", ontop: "" },
+        { q: 1, r: -1, kind: "plain", ontop: "" },
+        { q: -1, r: 0, kind: "plain", ontop: "" },
+        { q: 1, r: 0, kind: "plain", ontop: "" },
+        { q: -1, r: 1, kind: "plain", ontop: "" },
+        { q: 0, r: 1, kind: "plain", ontop: "" },
+      ],
+    };
+  }
 };
 
 
