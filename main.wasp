@@ -44,118 +44,71 @@ page LoginPage {
 
 // 📚 Queries
 
-query getTank {
-  fn: import { getTank } from "@server/queries.js",
-  entities: [Tank]
-}
-
-query getGame {
-  fn: import { getGame } from "@server/queries.js",
-  entities: [Game, User]
-}
-
-query turnPolling {
-  fn: import {turnPolling} from "@server/queries.js",
-  entities: [Turn]
-}
-
-query getFOV {
-  fn: import { getFOV } from "@server/queries.js",
-  entities: [Game, Turn]
-}
 
 // 📝 Actions
 
-action addTank {
-  fn: import { addTank } from "@server/actions.js",
-  entities: [Tank]
-}
-
-action updateTank {
-  fn: import { updateTank } from "@server/actions.js",
-  entities: [Tank, Game]
-}
-
-action removeTank {
-  fn: import { removeTank } from "@server/actions.js",
-  entities: [Tank, Game]
-}
-
-action generateGame {
-  fn: import { generateGame } from "@server/actions.js",
-  entities: [Game, User, Board]
-}
-
-action abandonGame {
-  fn: import { abandonGame } from "@server/actions.js",
-  entities: [User]
-}
-
-action joinGame {
-  fn: import { joinGame } from "@server/actions.js",
-  entities: [Game, User]
-}
-
-action launchGame {
-  fn: import { launchGame } from "@server/actions.js",
-  entities: [Game, User, Turn]
-}
-
-action nextTurn {
-  fn: import { nextTurn } from "@server/actions.js", 
-  entities: [Game, Turn]
-}
 
 // 📦 Entities
 
 entity User {=psl
-  id       Int    @id @default(autoincrement())
-  username String @unique
-  password String
-  tank     Tank?
-  game     Game?  @relation(fields: [gameId], references: [id])
-  gameId   Int?
-  turns    Turn[]
-psl=}
-
-entity Tank {=psl
-  id          Int    @id @default(autoincrement())
-  user        User   @relation(fields: [userId], references: [id])
-  userId      Int    @unique
-  agility     Int    @default(1)
-  armor       Int    @default(1)
-  accuracy    Int    @default(1)
-  attackPower Int    @default(1)
-  color       String @default("353f4a")
+  id        Int     @id @default(autoincrement())
+  username  String  @unique
+  password  String
+  adminOf   Game[]
+  playsIn   PlayerInGame[]
 psl=}
 
 entity Game {=psl
   id          Int       @id @default(autoincrement())
   code        String    @unique
-  users       User[]
   state       String    @default("lobby") // should be an enum but that's not supported yet
+  admin       User      @relation(fields: [adminId], references: [id])
+  adminId     Int
   started_at  DateTime?
   ended_at    DateTime?
   board       Board?
-  turns       Turn[]
-  curr_player Int       @default(0)
+  players     PlayerInGame[]
+  plays       PlayInGame[]
 psl=}
 
 entity Board {=psl
   id      Int     @id @default(autoincrement())
   game    Game    @relation(fields: [gameId], references: [id])
   gameId  Int     @unique 
-  state   String    
+  state   String   @default("[]")   
 psl=}
 
-entity Turn {=psl
-  id          Int       @id @default(autoincrement())
-  game        Game      @relation(fields: [gameId], references: [id])
-  gameId      Int      
-  user        User      @relation(fields: [userId], references: [id])
+entity PlayerInGame {=psl
+  id          Int    @id @default(autoincrement())
+  order       Int
+  game        Game   @relation(fields: [gameId], references: [id])
+  gameId      Int
+  user        User   @relation(fields: [userId], references: [id])
   userId      Int
-  move        String
-  started_at  DateTime  @default(now())
-  ended_at    DateTime?
-  current     Boolean   @default(true)
+  state       String  @default("[]")
+  tank        Tank   @relation(fields: [tankId], references: [id])
+  tankId      Int
+  mp          Int    @default(10)
+  hp          Int    @default(100)
+  plays       PlayInGame[]
+  @@unique([gameId, userId])
+psl=}
+
+entity Tank {=psl
+  id          Int    @id @default(autoincrement())
+  agility     Int    @default(1)
+  armor       Int    @default(1)
+  accuracy    Int    @default(1)
+  attackPower Int    @default(1)
+  color       String @default("353f4a")
+  usedOn      PlayerInGame[]
+psl=}
+
+entity PlayInGame {=psl
+  id          Int             @id @default(autoincrement())
+  player      PlayerInGame    @relation(fields: [playerId], references: [id])
+  playerId    Int    
+  game        Game            @relation(fields: [gameId], references: [id])
+  gameId      Int
+  play        String           @default("")
 psl=}
