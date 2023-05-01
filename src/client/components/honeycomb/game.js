@@ -11,6 +11,10 @@ export default class Game {
   //   return this.layout.pixelToHex(window.p5.createVector(x, y)).round();
   // }
 
+  moveMap(x, y) {
+    this.map.move(x, y);
+  }
+
   selectHex(x, y) {
     this.map.selectHex(x, y);
   }

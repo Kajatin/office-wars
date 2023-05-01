@@ -80,6 +80,11 @@ export default class Map {
     return this.map.filter((h) => h.distance(hex) <= distance);
   }
 
+  move(x, y) {
+    this.center.x += x;
+    this.center.y += y;
+  }
+
   draw() {
     // Center around the player
     window.p5.push();
@@ -91,6 +96,7 @@ export default class Map {
     this.map.forEach((hex) => {
       let corners = this.layout.polygonCorners(hex);
       window.p5.stroke(51);
+      window.p5.strokeWeight(Math.min(p5.width / 100, p5.height / 100));
       window.p5.fill(hex.props.color);
       window.p5.beginShape();
       corners.forEach((corner) => {

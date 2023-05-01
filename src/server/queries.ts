@@ -66,8 +66,8 @@ export const getFOV = async ({}, context: any) => {
     width: 40,
     height: 40,
     position: {
-      q: 0,
-      r: 0,
+      q: 10,
+      r: 10,
     },
     fov: [
       { q: 0, r: 0, kind: "plain", ontop: "" },
