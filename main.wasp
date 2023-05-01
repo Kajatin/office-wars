@@ -44,9 +44,57 @@ page LoginPage {
 
 // 📚 Queries
 
+query getTank {
+  fn: import { getTank } from "@server/queries.js",
+  entities: [Tank]
+}
+
+query getGame {
+  fn: import { getGame } from "@server/queries.js",
+  entities: [Game, User]
+}
+
+query getFOV {
+  fn: import { getFOV } from "@server/queries.js",
+  entities: [Game]
+}
+
 
 // 📝 Actions
 
+action addTank {
+  fn: import { addTank } from "@server/actions.js",
+}
+
+action updateTank {
+  fn: import { updateTank } from "@server/actions.js",
+  entities: [Tank, Game]
+}
+
+action removeTank {
+  fn: import { removeTank } from "@server/actions.js",
+  entities: [Tank, Game]
+}
+
+action generateGame {
+  fn: import { generateGame } from "@server/actions.js",
+  entities: [Game, Board]
+}
+
+action abandonGame {
+  fn: import { abandonGame } from "@server/actions.js",
+  entities: [User]
+}
+
+action joinGame {
+  fn: import { joinGame } from "@server/actions.js",
+  entities: [Game, PlayerInGame]
+}
+
+action launchGame {
+  fn: import { launchGame } from "@server/actions.js",
+  entities: [Game, User]
+}
 
 // 📦 Entities
 
@@ -56,6 +104,7 @@ entity User {=psl
   password  String
   adminOf   Game[]
   playsIn   PlayerInGame[]
+  tanks     Tank[]
 psl=}
 
 entity Game {=psl
@@ -101,6 +150,8 @@ entity Tank {=psl
   accuracy    Int    @default(1)
   attackPower Int    @default(1)
   color       String @default("353f4a")
+  creator     User   @relation(fields: [creatorId], references: [id])
+  creatorId   Int
   usedOn      PlayerInGame[]
 psl=}
 
