@@ -37,6 +37,7 @@ function ArenaP5(props) {
 
         game.draw();
 
+        // pan the map with the arrow keys
         if (p5.keyIsDown(p5.RIGHT_ARROW)) {
           game.moveMap(15, 0);
         }
@@ -48,6 +49,14 @@ function ArenaP5(props) {
         }
         if (p5.keyIsDown(p5.UP_ARROW)) {
           game.moveMap(0, -15);
+        }
+
+        // zoom in and out with with the mouse wheel and [ ] keys
+        if (p5.keyIsDown(221)) {
+          game.scaleMap(0.01);
+        }
+        if (p5.keyIsDown(219)) {
+          game.scaleMap(-0.01);
         }
 
         if (p5.mouseIsPressed && p5.mouseButton === p5.LEFT) {

@@ -7,6 +7,7 @@ export default class Map {
 
     this.pos = fov?.position || { q: 0, r: 0 };
     this.center = this.layout.hexToPixel(this.pos);
+    this.zoom = 1;
 
     const rows = fov?.height || 1;
     const cols = fov?.width || 1;
@@ -85,26 +86,67 @@ export default class Map {
     this.center.y += y;
   }
 
-  draw() {
-    // Center around the player
-    window.p5.push();
-    window.p5.translate(
-      window.p5.width / 2 - this.center.x,
-      window.p5.height / 2 - this.center.y
-    );
+  scale(zoom) {
+    this.zoom += zoom;
+  }
 
+  draw() {
+    // Main Map
+    window.p5.push();
+    window.p5.translate(window.p5.width / 2, window.p5.height / 2);
+    window.p5.scale(this.zoom);
+    window.p5.translate(-this.center.x, -this.center.y);
+    this.drawMap(window.p5);
+    window.p5.pop();
+
+    // Minimap
+    const minimapMargin = 15; // Margin from the top-right corner of the canvas
+    const minimapSize = Math.min(p5.width / 3, p5.height / 3); // Size of the square minimap
+
+    const minimapGraphics = window.p5.createGraphics(minimapSize, minimapSize);
+
+    minimapGraphics.push();
+    minimapGraphics.translate(minimapSize / 2, minimapSize / 2);
+    minimapGraphics.scale(this.zoom * 0.2);
+    minimapGraphics.translate(-this.center.x, -this.center.y);
+    this.drawMap(minimapGraphics);
+    minimapGraphics.pop();
+
+    // Draw Minimap Border
+    const minimapPosX = window.p5.width - minimapSize - minimapMargin;
+    const minimapPosY = minimapMargin;
+    const borderThickness = 5;
+    const borderRadius = 10;
+
+    window.p5.push();
+    window.p5.stroke(51, 140);
+    window.p5.strokeWeight(borderThickness);
+    window.p5.fill(250, 250, 249);
+    window.p5.rect(
+      minimapPosX - borderThickness,
+      minimapPosY - borderThickness,
+      minimapSize + 2 * borderThickness,
+      minimapSize + 2 * borderThickness,
+      borderRadius
+    );
+    window.p5.pop();
+
+    window.p5.image(minimapGraphics, minimapPosX, minimapPosY);
+  }
+
+  drawMap(graphics) {
     this.map.forEach((hex) => {
       let corners = this.layout.polygonCorners(hex);
-      window.p5.stroke(51);
-      window.p5.strokeWeight(Math.min(p5.width / 100, p5.height / 100));
-      window.p5.fill(hex.props.color);
-      window.p5.beginShape();
+      graphics.stroke(51);
+      graphics.strokeWeight(
+        Math.min(graphics.width / 100, graphics.height / 100)
+      );
+      graphics.fill(hex.props.color);
+      graphics.beginShape();
       corners.forEach((corner) => {
-        window.p5.vertex(corner.x, corner.y);
+        graphics.vertex(corner.x, corner.y);
       });
-      window.p5.endShape(window.p5.CLOSE);
+      graphics.endShape(graphics.CLOSE);
     });
-
-    window.p5.pop();
   }
 }

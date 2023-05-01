@@ -15,6 +15,10 @@ export default class Game {
     this.map.move(x, y);
   }
 
+  scaleMap(zoom) {
+    this.map.scale(zoom);
+  }
+
   selectHex(x, y) {
     this.map.selectHex(x, y);
   }
