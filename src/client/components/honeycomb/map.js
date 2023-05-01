@@ -7,13 +7,13 @@ export default class Map {
 
     const rows = fov?.height || 1;
     const cols = fov?.width || 1;
-    const pos = fov?.position || { q: 0, r: 0 };
+    this.pos = fov?.position || { q: 0, r: 0 };
     for (let row = 0; row <= rows; row++) {
       for (let col = 0; col <= cols; col++) {
         let { q, r, s } = Hex.offset_to_axial(row, col);
         this.map.push(new Hex(q, r, s));
 
-        if (pos.q === q && pos.r === r) {
+        if (this.pos.q === q && this.pos.r === r) {
           const hexColor = tank?.color?.replace("#", "") || "fcba03";
           var bigint = parseInt(hexColor, 16);
           var cr = (bigint >> 16) & 255;
@@ -78,10 +78,20 @@ export default class Map {
   }
 
   draw() {
+    // center around the player
+    let center = this.layout.hex_to_pixel(this.pos);
+    window.p5.translate(
+      window.p5.width / 2 - center.x,
+      window.p5.height / 2 - center.y
+    );
+
     this.map.forEach((hex) => {
       let corners = this.layout.polygon_corners(hex);
-      window.p5.stroke(0);
-      hex.props?.color ? window.p5.fill(hex.props.color) : window.p5.noFill();
+      window.p5.stroke(51);
+      hex.props?.color
+        ? window.p5.fill(hex.props.color)
+        : // : window.p5.fill(250, 250, 249);
+          window.p5.noFill();
       window.p5.beginShape();
       corners.forEach((corner) => {
         window.p5.vertex(corner.x, corner.y);
