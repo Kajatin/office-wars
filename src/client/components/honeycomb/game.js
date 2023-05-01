@@ -7,9 +7,9 @@ export default class Game {
     this.map = new Map(fov, tank, this.layout);
   }
 
-  hexFromPixelCoords(x, y) {
-    return this.layout.pixel_to_hex(window.p5.createVector(x, y)).round();
-  }
+  // hexFromPixelCoords(x, y) {
+  //   return this.layout.pixelToHex(window.p5.createVector(x, y)).round();
+  // }
 
   selectHex(x, y) {
     this.map.selectHex(x, y);

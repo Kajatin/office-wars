@@ -23,7 +23,8 @@ function ArenaP5(props) {
         canvas.parent(canvasRef.current);
         p5.colorMode(p5.RGB);
 
-        game = new Game(fov, tank, pointy, p5.createVector(30, 30), p5.createVector(0, 0));
+        const hexSize = Math.min(canvasRef.current.offsetWidth / 15, canvasRef.current.offsetHeight / 15);
+        game = new Game(fov, tank, pointy, p5.createVector(hexSize, hexSize), p5.createVector(0, 0));
       };
 
       p5.draw = () => {
