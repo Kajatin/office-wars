@@ -23,6 +23,10 @@ export default class Game {
     this.map.selectHex(x, y);
   }
 
+  movePos(x, y) {
+    this.map.movePos(x, y);
+  }
+
   draw() {
     this.map.draw();
   }

@@ -30,6 +30,29 @@ export default class Map {
         }
       }
     }
+
+    const currentHex = this.getHex(this.pos.q, this.pos.r);
+    this.findVisibleHexesWithinDistance(currentHex, 4).forEach((hex) => {
+      hex.props.setVisible(true);
+    });
+  }
+
+  findVisibleHexesWithinDistance(currentHex, distance) {
+    let visibleHexes = [];
+    let fov = this.getHexesWithinDistance(currentHex, distance);
+    fov.forEach((hex) => {
+      // use the linedraw algorithm to get all hexes between the current hex and the target hex
+      let line = currentHex.linedraw(hex);
+      line.forEach((seg) => {
+        if (seg.q === currentHex.q && seg.r === currentHex.r) {
+          visibleHexes.push(currentHex);
+        }
+        let hex = this.getHex(seg.q, seg.r);
+        const lineOfSight = this.checkLineOfSight(currentHex, hex);
+        if (lineOfSight) visibleHexes.push(hex);
+      });
+    });
+    return visibleHexes;
   }
 
   selectHex(x, y) {
@@ -59,6 +82,40 @@ export default class Map {
           : window.p5.color(128, 11, 35)
       );
     });
+  }
+
+  movePos(x, y) {
+    // Remove the zoom and the center effect
+    x = (x - window.p5.width / 2) / this.zoom + this.center.x;
+    y = (y - window.p5.height / 2) / this.zoom + this.center.y;
+
+    let hex = this.getHexFromPixelCoords(x, y);
+    if (!hex) return;
+
+    const currentHex = this.getHex(this.pos.q, this.pos.r);
+
+    let line = currentHex.linedraw(hex);
+    let visible = true;
+    line.forEach((seg) => {
+      if (seg.q === currentHex.q && seg.r === currentHex.r) return;
+      let hh = this.getHex(seg.q, seg.r);
+      const lineOfSight = this.checkLineOfSight(currentHex, hh);
+      if (!lineOfSight) {
+        visible = false;
+        return;
+      }
+    });
+
+    if (visible) {
+      this.pos = hex.params();
+      this.center = this.layout.hexToPixel(this.pos);
+
+      console.log(this.pos, this.center);
+
+      this.findVisibleHexesWithinDistance(hex, 4).forEach((h) => {
+        h.props.setVisible(true);
+      });
+    }
   }
 
   getHexFromPixelCoords(x, y) {
@@ -159,7 +216,7 @@ export default class Map {
       graphics.strokeWeight(
         Math.min(graphics.width / 100, graphics.height / 100)
       );
-      graphics.fill(hex.props.color);
+      graphics.fill(hex.props.visible ? hex.props.color : 225);
       graphics.beginShape();
       corners.forEach((corner) => {
         graphics.vertex(corner.x, corner.y);

@@ -24,6 +24,10 @@ export default class Hex {
     return row, col;
   }
 
+  params() {
+    return { q: this.q, r: this.r, s: this.s };
+  }
+
   add(b) {
     return new Hex(this.q + b.q, this.r + b.r, this.s + b.s);
   }

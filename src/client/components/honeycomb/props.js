@@ -1,5 +1,6 @@
 export default class HexProperties {
   constructor(props) {
+    this.visible = props?.visible || false;
     this.kind =
       props?.kind ||
       window?.p5?.random([
@@ -15,6 +16,10 @@ export default class HexProperties {
 
   setColor(color) {
     this.color = color;
+  }
+
+  setVisible(visible) {
+    this.visible = visible;
   }
 
   isBlocking() {
