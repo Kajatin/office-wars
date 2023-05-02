@@ -60,6 +60,9 @@ function ArenaP5(props) {
         }
 
         if (p5.mouseIsPressed && p5.mouseButton === p5.LEFT) {
+          if (p5.mouseX < 0 || p5.mouseX > p5.width || p5.mouseY < 0 || p5.mouseY > p5.height) {
+            return;
+          }
           game.selectHex(p5.mouseX, p5.mouseY);
         }
       };
