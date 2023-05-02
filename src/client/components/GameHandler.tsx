@@ -37,9 +37,9 @@ export default function GameHandler(props: { user: User }) {
   }, [game]);
 
   return (
-    <div className="flex flex-col flex-grow min-w-[24rem] gap-2 w-full h-full sm:w-fit justify-center px-4 py-2 bg-white">
+    <div className="flex flex-col flex-grow min-w-[26rem] gap-2 w-full h-full sm:w-fit justify-center px-8 py-2 bg-white shadow-sm hover:shadow-md">
       <div className="flex justify-between font-medium text-3xl py-1 border-b items-baseline">
-        <span className="text-indigo-500">{lobbyName}</span>
+        <span className="text-stone-700">{lobbyName}</span>
         <span className="text-base font-normal opacity-70">
           {numPlayers} player{numPlayers === 1 ? "" : "s"}
         </span>
@@ -78,45 +78,47 @@ function GameLobby(props: { game: any | null }) {
         Share this code with your friends! They can use it to join your lobby.
       </div>
 
-      <button
-        className="w-full px-8 bg-white rounded border font-medium hover:bg-indigo-50 hover:border-indigo-400 py-1 text-stone-700 hover:text-indigo-600"
-        onClick={() => {
-          try {
-            if (!game) {
-              return;
+      <div className="flex flex-row gap-2 justify-center h-14 mt-2">
+        <button
+          className="w-full px-8 bg-white rounded border font-medium hover:bg-indigo-50 hover:border-indigo-400 py-1 text-stone-700 hover:text-indigo-600 transition-all duration-300"
+          onClick={() => {
+            try {
+              if (!game) {
+                return;
+              }
+
+              launchGame(game.id);
+            } catch (err) {
+              console.error(err);
+              window.alert(err);
             }
+          }}
+        >
+          <div className="flex flex-row gap-1 justify-center">
+            <span>Play</span>
+            <span className="material-symbols-outlined self-center">
+              rocket
+            </span>
+          </div>
+        </button>
 
-            launchGame(game.id);
-          } catch (err) {
-            console.error(err);
-            window.alert(err);
-          }
-        }}
-      >
-        <div className="flex flex-row gap-1 justify-center">
-          <span>Launch</span>
-          <span className="material-symbols-outlined self-center">rocket</span>
-        </div>
-      </button>
-
-      <button
-        className="w-full px-8 bg-white rounded border font-medium hover:bg-pink-50 hover:border-pink-400 py-1 text-stone-700 hover:text-pink-600"
-        onClick={() => {
-          try {
-            abandonGame(null);
-          } catch (err) {
-            console.error(err);
-            window.alert(err);
-          }
-        }}
-      >
-        <div className="flex flex-row gap-1 justify-center">
-          <span>Abandon</span>
-          <span className="material-symbols-outlined self-center">
-            backspace
-          </span>
-        </div>
-      </button>
+        <button
+          className="w-full px-8 bg-white rounded border font-medium hover:bg-pink-50 hover:border-pink-400 py-1 text-stone-700 hover:text-pink-600 transition-all duration-300"
+          onClick={() => {
+            try {
+              abandonGame(null);
+            } catch (err) {
+              console.error(err);
+              window.alert(err);
+            }
+          }}
+        >
+          <div className="flex flex-row gap-1 justify-center">
+            <span>Quit</span>
+            <span className="material-symbols-outlined self-center">close</span>
+          </div>
+        </button>
+      </div>
     </div>
   );
 }
@@ -131,7 +133,7 @@ function RejoinGame(props: { game: any | null }) {
 
       <div className="flex flex-row gap-2 justify-center h-14 mt-2">
         <button
-          className="w-full px-8 bg-white rounded border font-medium hover:bg-indigo-50 hover:border-indigo-400 py-1 text-stone-700 hover:text-indigo-600"
+          className="w-full px-8 bg-white rounded border font-medium hover:bg-indigo-50 hover:border-indigo-400 py-1 text-stone-700 hover:text-indigo-600 transition-all duration-300"
           onClick={() => {
             try {
               if (!game) {
@@ -154,7 +156,7 @@ function RejoinGame(props: { game: any | null }) {
         </button>
 
         <button
-          className="w-full h-full px-8 bg-white rounded border font-medium hover:bg-pink-50 hover:border-pink-400 py-1 text-stone-700 hover:text-pink-600"
+          className="w-full h-full px-8 bg-white rounded border font-medium hover:bg-pink-50 hover:border-pink-400 py-1 text-stone-700 hover:text-pink-600 transition-all duration-300"
           onClick={() => {
             try {
               abandonGame(null);
@@ -166,9 +168,7 @@ function RejoinGame(props: { game: any | null }) {
         >
           <div className="flex flex-row gap-1 justify-center">
             <span>Forfeit</span>
-            <span className="material-symbols-outlined self-center">
-              cancel
-            </span>
+            <span className="material-symbols-outlined self-center">close</span>
           </div>
         </button>
       </div>
@@ -197,7 +197,7 @@ function GameCreation() {
       ></input>
 
       <button
-        className="w-full px-8 bg-white rounded border font-medium hover:bg-indigo-50 hover:border-indigo-400 py-1 text-stone-700 hover:text-indigo-600"
+        className="w-full px-8 bg-white rounded border font-medium hover:bg-indigo-50 hover:border-indigo-400 py-1 text-stone-700 hover:text-indigo-600 transition-all duration-300"
         onClick={async () => {
           try {
             if (!code) {
@@ -222,7 +222,7 @@ function GameCreation() {
       </div>
 
       <button
-        className="w-full px-8 bg-white rounded border font-medium hover:bg-indigo-50 hover:border-indigo-400 py-1 text-stone-700 hover:text-indigo-600"
+        className="w-full px-8 bg-white rounded border font-medium hover:bg-indigo-50 hover:border-indigo-400 py-1 text-stone-700 hover:text-indigo-600 transition-all duration-300"
         onClick={async () => {
           try {
             await generateGame(null);
