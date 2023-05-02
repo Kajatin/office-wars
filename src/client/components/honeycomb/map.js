@@ -40,19 +40,25 @@ export default class Map {
     let hex = this.getHexFromPixelCoords(x, y);
     if (!hex) return;
 
-    let neighbors = this.getNeighbors(hex);
-    neighbors.forEach((neighbor) => neighbor.props.setColor(125));
+    const currentHex = this.getHex(this.pos.q, this.pos.r);
+
+    // let neighbors = this.getNeighbors(hex);
+    // neighbors.forEach((neighbor) => neighbor.props.setColor(125));
 
     // let fov = this.getHexesWithinDistance(hex, 3);
     // fov.forEach((neighbor) => neighbor.props.setColor(125));
 
-    // let line = hex.linedraw(this.getHex(this.pos.q, this.pos.r));
-    // line.forEach((seg) => {
-    //   let hex = this.getHex(seg.q, seg.r);
-    //   hex.props.setColor(90);
-    // });
-
-    // hex?.props?.setColor(55);
+    let line = hex.linedraw(currentHex);
+    line.forEach((seg) => {
+      if (seg.q === currentHex.q && seg.r === currentHex.r) return;
+      let hex = this.getHex(seg.q, seg.r);
+      const lineOfSight = this.checkLineOfSight(currentHex, hex);
+      hex.props.setColor(
+        lineOfSight
+          ? window.p5.color(209, 38, 73)
+          : window.p5.color(128, 11, 35)
+      );
+    });
   }
 
   getHexFromPixelCoords(x, y) {
@@ -80,6 +86,17 @@ export default class Map {
 
   getHexesWithinDistance(hex, distance) {
     return this.map.filter((h) => h.distance(hex) <= distance);
+  }
+
+  // check if hexes on a line are blocked
+  checkLineOfSight(hex1, hex2) {
+    let line = hex1.linedraw(hex2);
+    let blocked = false;
+    line.forEach((seg) => {
+      let hex = this.getHex(seg.q, seg.r);
+      if (hex.props.isBlocking()) blocked = true;
+    });
+    return !blocked;
   }
 
   move(x, y) {

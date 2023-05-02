@@ -1,13 +1,24 @@
 export default class HexProperties {
-  color;
-  active = false;
-
   constructor(props) {
-    this.color = this.tileKindToColor(props?.kind);
+    this.kind =
+      props?.kind ||
+      window?.p5?.random([
+        "plain",
+        "water",
+        "sand",
+        "rock",
+        "mountain",
+        "forest",
+      ]);
+    this.color = this.tileKindToColor(this.kind);
   }
 
   setColor(color) {
     this.color = color;
+  }
+
+  isBlocking() {
+    return this.kind === "mountain" || this.kind === "rock";
   }
 
   tileKindToColor(kind) {
@@ -22,6 +33,8 @@ export default class HexProperties {
         return window?.p5?.color(138, 138, 138);
       case "mountain":
         return window?.p5?.color(88, 88, 88);
+      case "forest":
+        return window?.p5?.color(63, 158, 69);
       default:
         return window?.p5?.color(250, 250, 249);
     }

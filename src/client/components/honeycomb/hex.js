@@ -126,7 +126,7 @@ export default class Hex {
         results.push(aNudge.lerp(bNudge, step * i).round());
       }
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
     return results;
   }
