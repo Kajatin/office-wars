@@ -51,7 +51,7 @@ export default function TankCustomizer(props: { user: User }) {
 
   return (
     <div className="flex flex-col min-w-[24rem] w-full h-full sm:w-fit justify-center">
-      <div className="rounded-lg px-4 pt-2 pb-4 drop-shadow-md bg-white">
+      <div className="rounded-lg px-4 pt-2 pb-4">
         <div className="flex flex-row justify-between font-medium text-2xl py-1 border-b items-center">
           <div className="flex flex-row gap-1">
             <input
@@ -249,10 +249,13 @@ function Tank(props: { color: string; changed: boolean }) {
   const { color, changed } = props;
   return (
     <div
-      className={"flex justify-center py-8 " + (changed ? "animate-pulse" : "")}
+      className={
+        "group flex justify-center py-8 relative " +
+        (changed ? "animate-pulse" : "")
+      }
     >
       <svg
-        className="w-52"
+        className="w-52 hover:scale-110 hover:drop-shadow-md transition-all"
         style={{
           color: color,
         }}
@@ -305,6 +308,7 @@ function Tank(props: { color: string; changed: boolean }) {
           strokeWidth="3"
         />
       </svg>
+      <div className="absolute top-0 -inset-full h-full w-1/3 z-5 block transform -skew-x-12 bg-gradient-to-r from-transparent to-white opacity-30 animate-shine" />
     </div>
   );
 }

@@ -37,7 +37,7 @@ export default function GameHandler(props: { user: User }) {
   }, [game]);
 
   return (
-    <div className="flex flex-col flex-grow min-w-[24rem] gap-2 w-full h-full sm:w-fit justify-center px-4 py-2">
+    <div className="flex flex-col flex-grow min-w-[24rem] gap-2 w-full h-full sm:w-fit justify-center px-4 py-2 bg-white">
       <div className="flex justify-between font-medium text-3xl py-1 border-b items-baseline">
         <span className="text-indigo-500">{lobbyName}</span>
         <span className="text-base font-normal opacity-70">
@@ -129,43 +129,49 @@ function RejoinGame(props: { game: any | null }) {
     <div className="flex flex-col gap-2 py-3 justify-center content-center">
       <PlayerLobby players={game?.users} bounce={false} />
 
-      <button
-        className="w-full px-8 mt-2 bg-white rounded border font-medium hover:bg-indigo-50 hover:border-indigo-400 py-1 text-stone-700 hover:text-indigo-600"
-        onClick={() => {
-          try {
-            if (!game) {
-              return;
+      <div className="flex flex-row gap-2 justify-center h-14 mt-2">
+        <button
+          className="w-full px-8 bg-white rounded border font-medium hover:bg-indigo-50 hover:border-indigo-400 py-1 text-stone-700 hover:text-indigo-600"
+          onClick={() => {
+            try {
+              if (!game) {
+                return;
+              }
+
+              history.push("/game");
+            } catch (err) {
+              console.error(err);
+              window.alert(err);
             }
+          }}
+        >
+          <div className="flex flex-row gap-1 justify-center">
+            <span>Rejoin</span>
+            <span className="material-symbols-outlined self-center">
+              swords
+            </span>
+          </div>
+        </button>
 
-            history.push("/game");
-          } catch (err) {
-            console.error(err);
-            window.alert(err);
-          }
-        }}
-      >
-        <div className="flex flex-row gap-1 justify-center">
-          <span>Rejoin</span>
-          <span className="material-symbols-outlined self-center">swords</span>
-        </div>
-      </button>
-
-      <button
-        className="w-full px-8 bg-white rounded border font-medium hover:bg-pink-50 hover:border-pink-400 py-1 text-stone-700 hover:text-pink-600"
-        onClick={() => {
-          try {
-            abandonGame(null);
-          } catch (err) {
-            console.error(err);
-            window.alert(err);
-          }
-        }}
-      >
-        <div className="flex flex-row gap-1 justify-center">
-          <span>Forfeit</span>
-          <span className="material-symbols-outlined self-center">cancel</span>
-        </div>
-      </button>
+        <button
+          className="w-full h-full px-8 bg-white rounded border font-medium hover:bg-pink-50 hover:border-pink-400 py-1 text-stone-700 hover:text-pink-600"
+          onClick={() => {
+            try {
+              abandonGame(null);
+            } catch (err) {
+              console.error(err);
+              window.alert(err);
+            }
+          }}
+        >
+          <div className="flex flex-row gap-1 justify-center">
+            <span>Forfeit</span>
+            <span className="material-symbols-outlined self-center">
+              cancel
+            </span>
+          </div>
+        </button>
+      </div>
     </div>
   );
 }
