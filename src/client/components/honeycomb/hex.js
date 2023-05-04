@@ -7,6 +7,12 @@ export default class Hex {
     this.q = q;
     this.r = r;
     this.s = s;
+
+    this.h = 0;
+    this.g = 0;
+    this.f = 0;
+    this.previous = null;
+
     this.props = new HexProperties(props);
     if (Math.round(q + r + s) !== 0) throw "q + r + s must be 0";
   }

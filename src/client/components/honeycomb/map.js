@@ -65,23 +65,87 @@ export default class Map {
 
     const currentHex = this.getHex(this.pos.q, this.pos.r);
 
-    // let neighbors = this.getNeighbors(hex);
-    // neighbors.forEach((neighbor) => neighbor.props.setColor(125));
+    // let line = hex.linedraw(currentHex);
+    // line.forEach((seg) => {
+    //   if (seg.q === currentHex.q && seg.r === currentHex.r) return;
+    //   let hex = this.getHex(seg.q, seg.r);
+    //   const lineOfSight = this.checkLineOfSight(currentHex, hex);
+    //   hex.props.setColor(
+    //     lineOfSight
+    //       ? window.p5.color(209, 38, 73)
+    //       : window.p5.color(128, 11, 35)
+    //   );
+    // });
 
-    // let fov = this.getHexesWithinDistance(hex, 3);
-    // fov.forEach((neighbor) => neighbor.props.setColor(125));
-
-    let line = hex.linedraw(currentHex);
-    line.forEach((seg) => {
-      if (seg.q === currentHex.q && seg.r === currentHex.r) return;
-      let hex = this.getHex(seg.q, seg.r);
-      const lineOfSight = this.checkLineOfSight(currentHex, hex);
-      hex.props.setColor(
-        lineOfSight
-          ? window.p5.color(209, 38, 73)
-          : window.p5.color(128, 11, 35)
-      );
+    // use A* to find the shortest path between the current hex and the target hex
+    let path = this.pathfind(currentHex, hex);
+    console.log(path);
+    path.forEach((hex) => {
+      hex.props.setColor(window.p5.color(209, 38, 73));
     });
+  }
+
+  pathfind(a, b) {
+    // impelement A* algorithm
+    let open = [];
+    let closed = [];
+    let path = [];
+
+    open.push(a);
+
+    while (open.length > 0) {
+      let winner = 0;
+      for (let i = 0; i < open.length; i++) {
+        if (open[i].f < open[winner].f) {
+          winner = i;
+        }
+      }
+      let current = open[winner];
+
+      if (current.q === b.q && current.r === b.r) {
+        let temp = current;
+        path.push(temp);
+        while (temp.previous) {
+          path.push(temp.previous);
+          temp = temp.previous;
+        }
+        break;
+      }
+
+      open = open.filter((hex) => hex.q !== current.q || hex.r !== current.r);
+      closed.push(current);
+
+      let neighbors = this.getNeighbors(current);
+      neighbors.forEach((neighbor) => {
+        if (neighbor.props.isBlocking()) return;
+        if (closed.find((hex) => hex.q === neighbor.q && hex.r === neighbor.r))
+          return;
+
+        let gScore = current.g + 1;
+        let gScoreIsBest = false;
+
+        if (!open.find((hex) => hex.q === neighbor.q && hex.r === neighbor.r)) {
+          gScoreIsBest = true;
+          neighbor.h = this.heuristic(neighbor, b);
+          open.push(neighbor);
+        } else if (gScore < neighbor.g) {
+          gScoreIsBest = true;
+        }
+
+        if (gScoreIsBest) {
+          neighbor.previous = current;
+          neighbor.g = gScore;
+          neighbor.f = neighbor.g + neighbor.h;
+        }
+      });
+    }
+
+    return path;
+  }
+
+  heuristic(a, b) {
+    // use cube distance
+    return (Math.abs(a.q - b.q) + Math.abs(a.q + a.r - b.q - b.r) + Math.abs(a.r - b.r)) / 2;
   }
 
   movePos(x, y) {
