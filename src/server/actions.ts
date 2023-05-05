@@ -1,5 +1,6 @@
 import HttpError from "@wasp/core/HttpError.js";
-import type { Tank, Game, User } from "@wasp/entities";
+import type { Tank, Game, User, PlayerInGame } from "@wasp/entities";
+import { assert } from "console";
 
 export async function addTank(tank: Tank, context: any) {
   if (!context.user) {
@@ -63,27 +64,64 @@ function generateRandomString() {
 
 }
 
+export async function demoAction(args: any, context: any) {
+  console.log("demo action")
 
-// 1 - plains
-// 2 - water
-// 3 - sand
-// 4 - rock
+
+}
+
+// 0 - plain
+// 1 - hill
+// 2 - sand
+// 3 - water 
+// 4 - forest
 // 5 - mountain
-// 6 - forest
 
-// generate rectangular grid with q,r hexagon coordinates
-function generateGrid() {
-  const grid = [
-    [1, 1, 1, 1, 1, 1, 1],
-    [1, 3, 3, 3, 3, 1, 1],
-    [1, 3, 2, 2, 3, 1, 1],
-    [1, 3, 2, 2, 3, 1, 1],
-    [1, 3, 3, 3, 3, 1, 1],
-    [6, 6, 6, 1, 1, 1, 1],
-    [6, 6, 6, 1, 5, 5, 5],
-  ];
+const generateGrid = () => {
+  const grid: number[][] = [
+    [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
+    [5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5],
+    [5, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5],
+    [5, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 3, 2, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5],
+    [5, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 5],
+    [5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2, 2, 3, 0, 0, 0, 0, 5, 5, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 5],
+    [5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2, 2, 3, 3, 0, 0, 0, 5, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 5],
+    [5, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 5, 5, 0, 0, 3, 2, 2, 2, 3, 0, 0, 0, 0, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4, 0, 0, 0, 5],
+    [5, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 5, 5, 0, 0, 3, 2, 2, 2, 3, 0, 0, 0, 0, 0, 0, 5, 5, 5, 5, 4, 4, 4, 4, 4, 0, 0, 0, 0, 5],
+    [5, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 5, 5, 0, 0, 3, 2, 2, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 5, 5, 0, 0, 0, 0, 0, 0, 0, 5],
+    [5, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 5, 5, 0, 0, 3, 2, 2, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 5, 0, 0, 0, 0, 0, 0, 5],
+    [5, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 5, 5, 0, 0, 0, 2, 2, 2, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 0, 0, 0, 0, 0, 0, 5],
+    [5, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 5, 5, 0, 0, 0, 3, 2, 2, 2, 3, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 5, 5, 5, 0, 0, 0, 0, 5],
+    [5, 0, 0, 0, 1, 1, 1, 1, 0, 0, 5, 5, 0, 0, 0, 0, 3, 2, 2, 2, 3, 3, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 5, 5, 0, 0, 0, 0, 5],
+    [5, 0, 0, 0, 1, 1, 1, 0, 0, 0, 5, 5, 0, 0, 0, 0, 3, 2, 2, 2, 2, 3, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 5, 5, 0, 0, 0, 0, 5],
+    [5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 0, 0, 0, 0, 3, 2, 2, 2, 2, 3, 4, 4, 4, 4, 4, 0, 0, 1, 1, 0, 0, 5, 5, 0, 0, 0, 0, 5],
+    [5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 0, 0, 0, 0, 3, 2, 2, 2, 2, 3, 4, 4, 4, 4, 4, 0, 0, 1, 1, 0, 0, 5, 5, 0, 0, 0, 0, 5],
+    [5, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 5, 0, 0, 0, 0, 3, 2, 2, 2, 2, 3, 4, 4, 4, 4, 4, 0, 0, 1, 1, 0, 0, 5, 5, 0, 0, 0, 0, 5],
+    [5, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 0, 0, 0, 0, 0, 3, 2, 2, 2, 2, 3, 4, 4, 4, 4, 4, 0, 0, 1, 1, 0, 5, 5, 5, 0, 0, 0, 0, 5],
+    [5, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 0, 0, 0, 0, 0, 3, 2, 2, 2, 2, 3, 3, 4, 4, 4, 4, 0, 0, 1, 0, 0, 5, 5, 5, 0, 0, 0, 0, 5],
+    [5, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 0, 0, 0, 0, 0, 3, 2, 2, 2, 2, 2, 3, 4, 4, 4, 4, 0, 1, 1, 0, 0, 5, 5, 0, 0, 0, 0, 0, 5],
+    [5, 0, 0, 0, 0, 0, 0, 0, 5, 5, 5, 0, 0, 0, 0, 0, 3, 2, 2, 2, 2, 2, 3, 4, 4, 4, 0, 0, 1, 0, 0, 0, 5, 5, 0, 0, 0, 0, 0, 5],
+    [5, 0, 0, 0, 0, 0, 0, 0, 5, 5, 5, 0, 0, 0, 0, 0, 3, 2, 2, 2, 2, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 0, 0, 0, 0, 0, 5],
+    [5, 4, 4, 4, 4, 0, 0, 0, 5, 5, 0, 0, 0, 0, 0, 0, 3, 2, 2, 2, 2, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 0, 0, 0, 0, 0, 5],
+    [5, 4, 4, 4, 4, 4, 4, 4, 5, 5, 0, 0, 0, 0, 0, 3, 3, 2, 2, 2, 2, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 0, 0, 0, 0, 0, 5],
+    [5, 4, 4, 4, 4, 4, 4, 4, 5, 5, 0, 0, 0, 0, 0, 3, 2, 2, 2, 2, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 0, 0, 0, 0, 0, 0, 5],
+    [5, 4, 4, 4, 4, 4, 4, 4, 5, 5, 0, 0, 4, 4, 4, 3, 2, 2, 2, 2, 2, 3, 0, 0, 0, 0, 0, 0, 1, 0, 0, 5, 5, 0, 0, 0, 0, 0, 0, 5],
+    [5, 4, 4, 4, 4, 4, 4, 5, 5, 0, 0, 4, 4, 4, 3, 3, 2, 2, 2, 2, 3, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 5, 5, 0, 0, 0, 0, 0, 0, 5],
+    [5, 4, 4, 4, 4, 4, 4, 5, 5, 0, 0, 4, 4, 4, 3, 2, 2, 2, 2, 2, 3, 0, 0, 0, 1, 0, 0, 0, 0, 0, 5, 5, 5, 0, 0, 0, 0, 0, 0, 5],
+    [5, 4, 4, 4, 4, 4, 4, 5, 5, 0, 0, 4, 4, 4, 3, 2, 2, 2, 2, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 5, 0, 0, 0, 0, 0, 0, 5],
+    [5, 4, 4, 4, 4, 4, 4, 5, 5, 0, 4, 4, 4, 4, 3, 2, 2, 2, 2, 3, 3, 4, 4, 4, 4, 0, 0, 0, 0, 0, 5, 5, 0, 0, 0, 0, 0, 0, 0, 5],
+    [5, 4, 4, 4, 4, 4, 4, 5, 5, 0, 4, 4, 4, 4, 3, 2, 2, 2, 3, 3, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 5, 5, 0, 0, 0, 0, 0, 0, 0, 5],
+    [5, 4, 4, 4, 4, 4, 0, 0, 0, 0, 4, 4, 4, 3, 2, 2, 2, 2, 3, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 5],
+    [5, 4, 4, 4, 4, 0, 0, 0, 0, 0, 4, 4, 4, 3, 2, 2, 2, 3, 3, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 5],
+    [5, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 4, 3, 2, 2, 2, 2, 3, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 5],
+    [5, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 2, 2, 2, 3, 3, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 1, 1, 0, 0, 0, 4, 4, 4, 4, 4, 5],
+    [5, 0, 0, 1, 1, 0, 0, 0, 0, 0, 3, 3, 3, 2, 2, 2, 3, 0, 0, 4, 4, 4, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 4, 4, 4, 4, 4, 4, 5],
+    [5, 0, 0, 1, 1, 0, 0, 0, 0, 0, 3, 3, 3, 2, 2, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 4, 4, 4, 4, 4, 4, 5],
+    [5, 0, 0, 1, 1, 1, 0, 0, 0, 3, 3, 3, 3, 2, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 5],
+    [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
+  ]
   
-  return grid;
+  return grid
 }
 
 export async function generateGame(args: any, context: any) {
@@ -98,7 +136,7 @@ export async function generateGame(args: any, context: any) {
       started_at: new Date(),
     },
   });
-  
+
   const grid = generateGrid();
 
   const board_state = {
@@ -143,7 +181,7 @@ export async function joinGame(
   if (game.state !== "lobby") {
     throw new HttpError(400, 'Game is not in the "lobby" state.');
   }
-  
+
   // Ensure that the user is not already in a game and that they have a tank.
   const playerInGame = await context.entities.PlayerInGame.findUnique({
     where: {
@@ -153,29 +191,29 @@ export async function joinGame(
       }
     }
   });
-  
+
   if (playerInGame) {
     throw new HttpError(400, "You are already in this game.");
   }
-  
+
   // check how many players are in the game
   const players = await context.entities.PlayerInGame.findMany({
     where: { gameId: game.id },
   });
-  
+
   const player_state = {
     fov: [],
     visited_tiles: [],
   }
-  
+
   // TODO check that the tank is from the player
   await context.entities.PlayerInGame.create({
     data: {
-        order: players.length,
-        userId: context.user.id,
-        gameId: game.id,
-        state: JSON.stringify(player_state),
-        tankId: tankId,
+      order: players.length,
+      userId: context.user.id,
+      gameId: game.id,
+      state: JSON.stringify(player_state),
+      tankId: tankId,
     },
   });
 
@@ -266,4 +304,80 @@ export async function launchGame(
 
 export const nextTurn = async () => {
   console.log('The client said Hi!')
+}
+
+
+export const spawnPlayers = async (args: any, context: any) => {
+  console.log('Spawning players')
+
+  // Olny admins can spawn players and start the game
+  assert(context.user)
+
+  // Get the game the user is admin
+  const game = await context.entities.Game.findFirst({
+    where: {
+      adminId: context.user.id
+    }
+  })
+
+  assert(game)
+
+  // Get all the players in the game
+  const players = await context.entities.PlayerInGame.findMany({
+    where: {
+      gameId: game.id
+    }
+  })
+
+  assert(players.length > 0)
+  
+  // Get the board
+  const board = await context.entities.Board.findFirst({
+    where: {
+      gameId: game.id
+    }
+  })
+
+  assert(board)
+  
+  const prevpos = []
+  
+  const grid = JSON.parse(board.state).grid
+
+  // for each player generate a position on the board and check if it is not a mountain
+  players.forEach(async (player: PlayerInGame) => {
+    let x = Math.floor(Math.random() * 40);
+    let y = Math.floor(Math.random() * 40);
+    //let x = 1
+    //let y = 6
+    while (grid[y][x] == 5) {
+      x = Math.floor(Math.random() * 40);
+      y = Math.floor(Math.random() * 40);
+    }
+    
+    const q = x - Math.floor(y/2)
+    const r = y
+    console.log(`Player ${player.id} will spawn at x,y (${x} ${y}) q,r (${q}, ${r})`)
+    
+    
+    const center = {q: q, r: r}
+    
+    let possible_fov: {q: number, r: number}[]= []
+    const N = 3
+    for (let q = -N; q <= N; q++) {
+      const r1 = Math.max(-N, -q - N);
+      const r2 = Math.min(N, -q + N);
+      for (let r = r1; r <= r2; r++) {
+        possible_fov.push(axial_add(center, {q: q, r: r}))
+      }
+    }
+    
+    console.log(possible_fov)
+  })
+
+
+}
+
+const axial_add = (hex: {q: number, r:number}, vec: {q: number, r:number}) => {
+    return {q: hex.q + vec.q, r: hex.r + vec.r}
 }

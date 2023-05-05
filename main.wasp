@@ -42,6 +42,12 @@ page LoginPage {
   component: import Login from "@client/auth/LoginPage"
 }
 
+route DemoRoute { path: "/demo", to: DemoPage }
+page DemoPage {
+  authRequired: true,
+  component: import Login from "@client/Game/GamePage"
+}
+
 // 📚 Queries
 
 query getTank {
@@ -57,6 +63,11 @@ query getGame {
 query getFOV {
   fn: import { getFOV } from "@server/queries.js",
   entities: [Game]
+}
+
+query getState {
+  fn: import { getState } from "@server/queries.js",
+  entities: [Game, Board, PlayerInGame]
 }
 
 
@@ -94,6 +105,16 @@ action joinGame {
 action launchGame {
   fn: import { launchGame } from "@server/actions.js",
   entities: [Game, User]
+}
+
+action spawnPlayers {
+  fn: import { spawnPlayers } from "@server/actions.js",
+  entities: [Game, PlayerInGame, Board]
+}
+
+action demoAction {
+  fn: import { demoAction } from "@server/actions.js",
+  entities: []
 }
 
 // 📦 Entities

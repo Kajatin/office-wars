@@ -1,13 +1,14 @@
 import HttpError from "@wasp/core/HttpError.js";
-import type { Tank, Game, User } from "@wasp/entities";
+import type { Tank, Game, User, PlayerInGame } from "@wasp/entities";
+import { assert } from "console";
 
 export async function getTank(args: any, context: any): Promise<Tank> {
   if (!context.user) {
     throw new HttpError(401, "You must be logged in to add a tank.");
   }
 
-  return await context.entities.Tank.findUnique({
-    where: { userId: context.user.id },
+  return await context.entities.Tank.findMany({
+    where: { creatorId: context.user.id },
   });
 }
 
@@ -16,41 +17,23 @@ export async function getGame(args: any, context: any): Promise<Game | null> {
     throw new HttpError(401, "You must be logged in to add a tank.");
   }
 
-  if (!context.user.gameId) {
-    return Promise.resolve(null);
-  }
-
-  return await context.entities.Game.findUnique({
-    where: { id: context.user.gameId },
-    include: {
-      users: {
-        select: {
-          id: true,
-          username: true,
-          tank: { select: { color: true } },
-        },
-      },
-      board: {
-        select: {
-          id: true,
-          state: true
+  // Find games where user playsIn
+  const games = await context.entities.Game.findMany({
+    where: {
+      players: {
+        some: {
+          userId: context.user.id
         }
       }
     },
   });
+  
+  if (games.length == 0) {
+    return Promise.resolve(null);
+  } else {
+    return games[0];
+  }
 }
-
-export const turnPolling = ({ gameId }, context: any) => {
-  return context.entities.Turn.findUnique({
-    where: {
-      gameId: gameId,
-      current: true,
-    },
-    select: {
-      user: true,
-    },
-  });
-};
 
 export const getFOV = async ({}, context: any) => {
   // TODO add validations
@@ -100,3 +83,33 @@ export const getFOV = async ({}, context: any) => {
 };
 
 
+export const getState = async ({}, context: any): Promise<[Game, PlayerInGame]> => {
+  // TODO change this to be on the URL
+  // get user game
+  // 
+
+  console.log("Getting state")
+  const games = await context.entities.Game.findMany({
+    where: {
+      players: {
+        some: {
+          userId: context.user.id
+        }
+      }
+    },
+  });
+  
+  assert(games.length == 1, "User should be in exactly one game");
+  const game = games[0];
+  
+  const playeringame = await context.entities.PlayerInGame.findFirst({
+    where: {
+      gameId: game.id,
+      userId: context.user.id
+    }
+  })
+  
+  console.log(playeringame)
+  
+  return [game, playeringame]
+}
