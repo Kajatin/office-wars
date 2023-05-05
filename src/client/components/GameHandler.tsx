@@ -71,16 +71,16 @@ function GameLobby(props: { game: any | null }) {
     <div className="flex flex-col gap-2 py-3 justify-center content-center">
       <PlayerLobby players={game?.users} bounce={true} />
 
-      <div className="w-full mt-2 text-center uppercase text-2xl rounded border font-medium bg-indigo-50 border-indigo-400 py-1 text-indigo-600">
+      <div className="w-full mt-2 text-center uppercase text-2xl rounded border font-medium bg-indigo-50 border-indigo-400 py-2 text-indigo-600">
         {game?.code}
       </div>
       <div className="text-sm opacity-70 mb-2">
         Share this code with your friends! They can use it to join your lobby.
       </div>
 
-      <div className="flex flex-row gap-2 justify-center h-14 mt-2">
+      <div className="flex flex-row gap-2 justify-center mt-2">
         <button
-          className="w-full px-8 bg-white rounded border font-medium hover:bg-indigo-50 hover:border-indigo-400 py-1 text-stone-700 hover:text-indigo-600 transition-all duration-300"
+          className="w-full px-8 bg-white rounded border font-medium hover:bg-indigo-50 hover:border-indigo-400 py-2 text-stone-700 hover:text-indigo-600 transition-all duration-300"
           onClick={() => {
             try {
               if (!game) {
@@ -103,7 +103,7 @@ function GameLobby(props: { game: any | null }) {
         </button>
 
         <button
-          className="w-full px-8 bg-white rounded border font-medium hover:bg-pink-50 hover:border-pink-400 py-1 text-stone-700 hover:text-pink-600 transition-all duration-300"
+          className="w-full px-8 bg-white rounded border font-medium hover:bg-pink-50 hover:border-pink-400 py-2 text-stone-700 hover:text-pink-600 transition-all duration-300"
           onClick={() => {
             try {
               abandonGame(null);
@@ -131,9 +131,9 @@ function RejoinGame(props: { game: any | null }) {
     <div className="flex flex-col gap-2 py-3 justify-center content-center">
       <PlayerLobby players={game?.users} bounce={false} />
 
-      <div className="flex flex-row gap-2 justify-center h-14 mt-2">
+      <div className="flex flex-row gap-2 justify-center mt-2">
         <button
-          className="w-full px-8 bg-white rounded border font-medium hover:bg-indigo-50 hover:border-indigo-400 py-1 text-stone-700 hover:text-indigo-600 transition-all duration-300"
+          className="w-full px-8 bg-white rounded border font-medium hover:bg-indigo-50 hover:border-indigo-400 py-2 text-stone-700 hover:text-indigo-600 transition-all duration-300"
           onClick={() => {
             try {
               if (!game) {
@@ -148,7 +148,7 @@ function RejoinGame(props: { game: any | null }) {
           }}
         >
           <div className="flex flex-row gap-1 justify-center">
-            <span>Rejoin</span>
+            <span>Continue</span>
             <span className="material-symbols-outlined self-center">
               swords
             </span>
@@ -156,7 +156,7 @@ function RejoinGame(props: { game: any | null }) {
         </button>
 
         <button
-          className="w-full h-full px-8 bg-white rounded border font-medium hover:bg-pink-50 hover:border-pink-400 py-1 text-stone-700 hover:text-pink-600 transition-all duration-300"
+          className="w-full h-full px-8 bg-white rounded border font-medium hover:bg-pink-50 hover:border-pink-400 py-2 text-stone-700 hover:text-pink-600 transition-all duration-300"
           onClick={() => {
             try {
               abandonGame(null);
@@ -188,7 +188,7 @@ function GameCreation() {
   return (
     <>
       <input
-        className="w-full text-center uppercase text-2xl rounded border font-medium hover:bg-indigo-50 hover:border-indigo-400 focus:bg-indigo-50 focus:border-indigo-400 py-1 text-stone-700 hover:text-indigo-600 focus:text-indigo-600 outline-none"
+        className="w-full mt-3 text-center uppercase text-2xl rounded border font-medium hover:bg-indigo-50 hover:border-indigo-400 focus:bg-indigo-50 focus:border-indigo-400 py-2 text-stone-700 hover:text-indigo-600 focus:text-indigo-600 outline-none"
         placeholder="dtyz"
         value={code}
         onChange={(e) => {
@@ -197,7 +197,7 @@ function GameCreation() {
       ></input>
 
       <button
-        className="w-full px-8 bg-white rounded border font-medium hover:bg-indigo-50 hover:border-indigo-400 py-1 text-stone-700 hover:text-indigo-600 transition-all duration-300"
+        className="w-full px-8 bg-white rounded border font-medium hover:bg-indigo-50 hover:border-indigo-400 py-2 text-stone-700 hover:text-indigo-600 transition-all duration-300"
         onClick={async () => {
           try {
             if (!code) {
@@ -222,7 +222,7 @@ function GameCreation() {
       </div>
 
       <button
-        className="w-full px-8 bg-white rounded border font-medium hover:bg-indigo-50 hover:border-indigo-400 py-1 text-stone-700 hover:text-indigo-600 transition-all duration-300"
+        className="w-full px-8 bg-white rounded border font-medium hover:bg-indigo-50 hover:border-indigo-400 py-2 text-stone-700 hover:text-indigo-600 transition-all duration-300"
         onClick={async () => {
           try {
             await generateGame(null);

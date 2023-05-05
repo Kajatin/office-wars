@@ -86,6 +86,7 @@ export default class Map {
   }
 
   pathfind(a, b) {
+    // https://briangrinstead.com/blog/astar-search-algorithm-in-javascript/
     // impelement A* algorithm
     let open = [];
     let closed = [];
