@@ -20,7 +20,7 @@ export default class Game {
   }
 
   selectHex(x, y) {
-    this.map.selectHex(x, y);
+    return this.map.selectHex(x, y);
   }
 
   movePos(x, y) {

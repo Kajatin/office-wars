@@ -13,6 +13,8 @@ export default class Hex {
     this.f = 0;
     this.previous = null;
 
+    this.selected = false;
+
     this.props = new HexProperties(props);
     if (Math.round(q + r + s) !== 0) throw "q + r + s must be 0";
   }
@@ -28,6 +30,10 @@ export default class Hex {
     var col = q + (r - (r & 1)) / 2;
     var row = r;
     return row, col;
+  }
+
+  setSelected(selected) {
+    this.selected = selected;
   }
 
   params() {

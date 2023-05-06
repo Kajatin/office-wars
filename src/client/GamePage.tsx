@@ -1,4 +1,7 @@
 import { useHistory } from "react-router-dom";
+import { useState } from "react";
+
+import { AnimatePresence, motion } from "framer-motion";
 
 import { User } from "@wasp/entities";
 import { useQuery } from "@wasp/queries";
@@ -16,11 +19,15 @@ export default function GamePage({ user }: { user: User }) {
 
   const history = useHistory();
 
+  const [selectedHex, setSelectedHex] = useState(null);
+
   return (
     <>
       <div className="flex w-screen h-screen pt-14 px-3">
-        <Arena game={game} />
+        <Arena game={game} setSelectedHex={setSelectedHex} />
       </div>
+
+      <GameAction selectedHex={selectedHex} />
 
       <div className="fixed top-0 w-full border-b bg-white shadow-sm">
         <div className="flex flex-row px-4 py-2 justify-between font-medium text-2xl items-center">
@@ -56,8 +63,11 @@ export default function GamePage({ user }: { user: User }) {
   );
 }
 
-function Arena(props: { game: any | null }) {
-  const { game } = props;
+function Arena(props: {
+  game: any | null;
+  setSelectedHex: (hex: any) => void;
+}) {
+  const { game, setSelectedHex } = props;
   const { data: tank, isFetching, error } = useQuery(getTank);
   const { data: fov } = useQuery(getFOV);
 
@@ -69,9 +79,81 @@ function Arena(props: { game: any | null }) {
         ) : error ? (
           <div>Error: {error}</div>
         ) : (
-          <ArenaP5 game={game} tank={tank} fov={fov} />
+          <ArenaP5
+            game={game}
+            tank={tank}
+            fov={fov}
+            setSelectedHex={setSelectedHex}
+          />
         )}
       </div>
     </div>
+  );
+}
+
+function GameAction(props: { selectedHex: any | null }) {
+  const { selectedHex } = props;
+
+  console.log("selectedHex", selectedHex);
+
+  return (
+    <AnimatePresence>
+      {selectedHex && (
+        <motion.div
+          initial={{ opacity: 0, x: -100 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -100 }}
+          transition={{ duration: 0.2 }}
+          className="fixed top-16 left-5 bg-white bg-opacity-80 rounded-lg border-[3px] border-stone-500 px-3 py-2 w-[14rem] max-w-[14rem]"
+        >
+          <div className="flex flex-col justify-center items-center gap-2">
+            <svg
+              className="w-12 h-w-12 self-center py-1"
+              style={{ color: selectedHex.props.color }}
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 726 628"
+            >
+              <polygon
+                points="723,314 543,625.769145 183,625.769145 3,314 183,2.230855 543,2.230855 723,314"
+                fill="currentColor"
+                stroke="#333333"
+                strokeWidth="40"
+              />
+            </svg>
+
+            <div className="font-semibold w-full text-center pb-1">
+              {selectedHex.props.kind}
+            </div>
+
+            <button className="w-full px-8 rounded border border-stone-500 font-medium text-sm hover:bg-indigo-50 hover:border-indigo-400 py-1 text-stone-700 hover:text-indigo-600 transition-all duration-300">
+              <div className="flex flex-row gap-1 justify-center items-center">
+                <span>Move</span>
+                <span className="material-symbols-outlined self-center">
+                  right_click
+                </span>
+              </div>
+            </button>
+
+            <button className="w-full px-8 rounded border border-stone-500 font-medium text-sm hover:bg-indigo-50 hover:border-indigo-400 py-1 text-stone-700 hover:text-indigo-600 transition-all duration-300">
+              <div className="flex flex-row gap-1 justify-center items-center">
+                <span>Attack</span>
+                <span className="material-symbols-outlined self-center">
+                  swords
+                </span>
+              </div>
+            </button>
+
+            <button className="w-full px-8 rounded border border-stone-500 font-medium text-sm hover:bg-indigo-50 hover:border-indigo-400 py-1 text-stone-700 hover:text-indigo-600 transition-all duration-300">
+              <div className="flex flex-row gap-1 justify-center items-center">
+                <span>Bunker Down</span>
+                <span className="material-symbols-outlined self-center">
+                  shield
+                </span>
+              </div>
+            </button>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

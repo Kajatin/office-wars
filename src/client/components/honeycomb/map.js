@@ -61,7 +61,7 @@ export default class Map {
     y = (y - window.p5.height / 2) / this.zoom + this.center.y;
 
     let hex = this.getHexFromPixelCoords(x, y);
-    if (!hex) return;
+    if (!hex) return null;
 
     const currentHex = this.getHex(this.pos.q, this.pos.r);
 
@@ -79,10 +79,26 @@ export default class Map {
 
     // use A* to find the shortest path between the current hex and the target hex
     let path = this.pathfind(currentHex, hex);
-    console.log(path);
-    path.forEach((hex) => {
-      hex.props.setColor(window.p5.color(209, 38, 73));
+    path.forEach((tile) => {
+      // tile.props.setColor(window.p5.color(209, 38, 73));
     });
+
+    // unselect all hexes
+    this.map.forEach((hex) => {
+      hex.setSelected(false);
+    });
+
+    if (hex.props.visible) {
+      hex.setSelected(true);
+      return {
+        q: hex.q,
+        r: hex.r,
+        s: hex.s,
+        props: hex.props,
+      };
+    }
+
+    return null;
   }
 
   pathfind(a, b) {
@@ -146,7 +162,12 @@ export default class Map {
 
   heuristic(a, b) {
     // use cube distance
-    return (Math.abs(a.q - b.q) + Math.abs(a.q + a.r - b.q - b.r) + Math.abs(a.r - b.r)) / 2;
+    return (
+      (Math.abs(a.q - b.q) +
+        Math.abs(a.q + a.r - b.q - b.r) +
+        Math.abs(a.r - b.r)) /
+      2
+    );
   }
 
   movePos(x, y) {
@@ -174,8 +195,6 @@ export default class Map {
     if (visible) {
       this.pos = hex.params();
       this.center = this.layout.hexToPixel(this.pos);
-
-      console.log(this.pos, this.center);
 
       this.findVisibleHexesWithinDistance(hex, 4).forEach((h) => {
         h.props.setVisible(true);
@@ -275,18 +294,43 @@ export default class Map {
   }
 
   drawMap(graphics) {
-    this.map.forEach((hex) => {
-      let corners = this.layout.polygonCorners(hex);
+    const drawHex = (corners, fillColor, graphics) => {
       graphics.stroke(51);
       graphics.strokeWeight(
-        Math.min(graphics.width / 100, graphics.height / 100)
+        Math.min(graphics.width / 130, graphics.height / 130)
       );
-      graphics.fill(hex.props.visible ? hex.props.color : 225);
+      graphics.fill(fillColor);
       graphics.beginShape();
       corners.forEach((corner) => {
         graphics.vertex(corner.x, corner.y);
       });
       graphics.endShape(graphics.CLOSE);
+    };
+
+    let selectedHexCorners;
+    let selectedHexFillColor;
+
+    this.map.forEach((hex) => {
+      let corners = this.layout.polygonCorners(hex);
+      const fillColor = hex.props.visible ? hex.props.color : p5.color(225);
+      fillColor.setAlpha(hex.props.visible ? (hex.selected ? 255 : 235) : 155);
+
+      if (hex.selected) {
+        const center = this.layout.hexToPixel(hex);
+        const scaleFactor = 1.2;
+        selectedHexCorners = corners.map((corner) => {
+          const displacedCorner = corner.sub(center);
+          const scaledCorner = displacedCorner.mult(scaleFactor);
+          return scaledCorner.add(center);
+        });
+        selectedHexFillColor = fillColor;
+      } else {
+        drawHex(corners, fillColor, graphics);
+      }
     });
+
+    if (selectedHexCorners) {
+      drawHex(selectedHexCorners, selectedHexFillColor, graphics);
+    }
   }
 }

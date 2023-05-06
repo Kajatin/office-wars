@@ -6,7 +6,7 @@ import Game from './honeycomb/game';
 import {pointy} from './honeycomb/layout';
 
 function ArenaP5(props) {
-  const {game, tank, fov} = props;
+  const {game, tank, fov, setSelectedHex} = props;
 
   const canvasRef = useRef(null);
 
@@ -63,7 +63,8 @@ function ArenaP5(props) {
           if (p5.mouseX < 0 || p5.mouseX > p5.width || p5.mouseY < 0 || p5.mouseY > p5.height) {
             return;
           }
-          game.selectHex(p5.mouseX, p5.mouseY);
+          const ret = game.selectHex(p5.mouseX, p5.mouseY);
+          setSelectedHex(ret);
           // game.movePos(p5.mouseX, p5.mouseY);
         }
       };
