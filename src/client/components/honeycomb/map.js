@@ -2,21 +2,32 @@ import Hex from "./hex";
 
 export default class Map {
   constructor(fov, tank, layout) {
+    console.log("CLASS MAP");
     this.map = [];
     this.layout = layout;
 
-    this.pos = fov?.position || { q: 0, r: 0 };
+    const playerStateObj = JSON.parse(fov);
+    console.log("playerStateObj=", playerStateObj);
+    this.pos = playerStateObj?.pos || { q: 0, r: 0 };
+    console.log("this.pos=",  this.pos);
     this.center = this.layout.hexToPixel(this.pos);
     this.zoom = 1;
 
-    const rows = fov?.height || 1;
-    const cols = fov?.width || 1;
+    //const rows = fov?.height || 1;
+    //const cols = fov?.width || 1;
+    const rows = 40;
+    const cols = 40;
     for (let row = 0; row <= rows; row++) {
       for (let col = 0; col <= cols; col++) {
         let { q, r, s } = Hex.offsetToAxial(row, col);
-        let props = fov?.fov?.find((tile) => tile.q === q && tile.r === r);
+        let props = playerStateObj?.fov?.find((tile) => tile.q === q && tile.r === r);
+        const hex = new Hex(q, r, s, props);
+        if (props) {
+          console.log("props=", props);
+          hex.props.setVisible(true)
+        }
 
-        this.map.push(new Hex(q, r, s, props));
+        this.map.push(hex);
 
         if (this.pos.q === q && this.pos.r === r) {
           const hexColor = tank?.color?.replace("#", "") || "fcba03";
@@ -31,10 +42,10 @@ export default class Map {
       }
     }
 
-    const currentHex = this.getHex(this.pos.q, this.pos.r);
-    this.findVisibleHexesWithinDistance(currentHex, 4).forEach((hex) => {
-      hex.props.setVisible(true);
-    });
+    //const currentHex = this.getHex(this.pos.q, this.pos.r);
+    //this.findVisibleHexesWithinDistance(currentHex, 4).forEach((hex) => {
+    //  hex.props.setVisible(true);
+    //});
   }
 
   findVisibleHexesWithinDistance(currentHex, distance) {

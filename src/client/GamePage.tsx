@@ -1,6 +1,6 @@
 import { useHistory } from "react-router-dom";
 
-import { User } from "@wasp/entities";
+import { PlayerInGame, User, Game } from "@wasp/entities";
 import { useQuery } from "@wasp/queries";
 
 import ArenaP5 from "./components/ArenaP5";
@@ -8,7 +8,7 @@ import ArenaP5 from "./components/ArenaP5";
 import logout from "@wasp/auth/logout";
 import getGame from "@wasp/queries/getGame";
 import getTank from "@wasp/queries/getTank";
-import getFOV from "@wasp/queries/getFOV";
+import getState from "@wasp/queries/getState";
 import LoadingSpinner from "./components/LoadingSpinner";
 
 export default function GamePage({ user }: { user: User }) {
@@ -58,9 +58,9 @@ export default function GamePage({ user }: { user: User }) {
 
 function Arena(props: { game: any | null }) {
   const { game } = props;
-  const { data: tank, isFetching, error } = useQuery(getTank);
-  const { data: fov } = useQuery(getFOV);
-
+  const { data: tank} = useQuery(getTank);
+  const { data: state, isFetching, error } = useQuery(getState);
+  
   return (
     <div>
       <div className="w-full h-full">
@@ -69,7 +69,7 @@ function Arena(props: { game: any | null }) {
         ) : error ? (
           <div>Error: {error}</div>
         ) : (
-          <ArenaP5 game={game} tank={tank} fov={fov} />
+          <ArenaP5 game={state![0]} tank={state![1].tank} fov={state![1].state} />
         )}
       </div>
     </div>

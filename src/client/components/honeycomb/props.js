@@ -1,16 +1,7 @@
 export default class HexProperties {
   constructor(props) {
     this.visible = props?.visible || false;
-    this.kind =
-      props?.kind ||
-      window?.p5?.random([
-        "plain",
-        "water",
-        "sand",
-        "rock",
-        "mountain",
-        "forest",
-      ]);
+    this.kind = props?.kind     
     this.color = this.tileKindToColor(this.kind);
   }
 
@@ -28,17 +19,19 @@ export default class HexProperties {
 
   tileKindToColor(kind) {
     switch (kind) {
-      case "plain":
+      case 0:
         return window?.p5?.color(220, 237, 74);
-      case "water":
+      case 3:
         return window?.p5?.color(74, 150, 237);
-      case "sand":
+      case 2:
         return window?.p5?.color(194, 178, 128);
       case "rock":
         return window?.p5?.color(138, 138, 138);
-      case "mountain":
+      case 5:
         return window?.p5?.color(88, 88, 88);
-      case "forest":
+      case 4:
+        return window?.p5?.color(10, 158, 10);
+      case 1:
         return window?.p5?.color(63, 158, 69);
       default:
         return window?.p5?.color(250, 250, 249);

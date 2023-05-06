@@ -16,7 +16,7 @@ export default function GamePage({ user }: { user: User }) {
   return (
     <div className="flex w-screen flex-col">
       <div className="flex w-screen flex-row gap-4">
-        <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" onClick={async () => await spawnPlayers({})}>Spawn Players</button>
+        <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" onClick={async () => await spawnPlayers({gameid: 2})}>Spawn Players</button>
         <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" onClick={async () => await demoAction({})}>Demo Action</button>
       </div>
       <code>

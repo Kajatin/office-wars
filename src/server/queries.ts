@@ -26,6 +26,17 @@ export async function getGame(args: any, context: any): Promise<any | null> {
         }
       }
     },
+    include: {
+      players: {
+        include: {
+          tank: true,
+          user: {
+            select: {
+              username: true,
+            }
+          } 
+      }}
+    }
   });
   
   if (games.length == 0) {
@@ -106,10 +117,11 @@ export const getState = async ({}, context: any): Promise<[Game, PlayerInGame]> 
     where: {
       gameId: game.id,
       userId: context.user.id
+    },
+    include: {
+      tank: true
     }
   })
-  
-  console.log(playeringame)
   
   return [game, playeringame]
 }

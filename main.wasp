@@ -46,7 +46,7 @@ page LoginPage {
 route DemoRoute { path: "/demo", to: DemoPage }
 page DemoPage {
   authRequired: true,
-  component: import Login from "@client/Game/GamePage"
+  component: import Login from "@client/DemoArea/DemoPage"
 }
 
 // 📚 Queries

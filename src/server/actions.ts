@@ -307,7 +307,7 @@ export const nextTurn = async () => {
 }
 
 
-export const spawnPlayers = async (args: any, context: any) => {
+export const spawnPlayers = async (args: {gameid: number}, context: any) => {
   console.log('Spawning players')
 
   // Olny admins can spawn players and start the game
@@ -321,6 +321,8 @@ export const spawnPlayers = async (args: any, context: any) => {
   })
 
   assert(game)
+  
+  assert(game.id == args.gameid)
 
   // Get all the players in the game
   const players = await context.entities.PlayerInGame.findMany({
@@ -340,16 +342,16 @@ export const spawnPlayers = async (args: any, context: any) => {
 
   assert(board)
   
-  const prevpos = []
+  const player_fovs : { [key: number]: string }  = {}
   
   const grid = JSON.parse(board.state).grid
 
   // for each player generate a position on the board and check if it is not a mountain
   players.forEach(async (player: PlayerInGame) => {
-    let x = Math.floor(Math.random() * 40);
-    let y = Math.floor(Math.random() * 40);
-    //let x = 1
-    //let y = 6
+    //let x = Math.floor(Math.random() * 40);
+    //let y = Math.floor(Math.random() * 40);
+    let x = 3
+    let y = 2
     while (grid[y][x] == 5) {
       x = Math.floor(Math.random() * 40);
       y = Math.floor(Math.random() * 40);
@@ -362,20 +364,60 @@ export const spawnPlayers = async (args: any, context: any) => {
     
     const center = {q: q, r: r}
     
-    let possible_fov: {q: number, r: number}[]= []
+    let possible_fov: {q: number, r: number, kind: number, ontop: string}[]= []
     const N = 3
     for (let q = -N; q <= N; q++) {
       const r1 = Math.max(-N, -q - N);
       const r2 = Math.min(N, -q + N);
       for (let r = r1; r <= r2; r++) {
-        possible_fov.push(axial_add(center, {q: q, r: r}))
+        const new_visible_tile = axial_add(center, {q: q, r: r})
+        const x = new_visible_tile.q + Math.floor(new_visible_tile.r/2)
+        const y = new_visible_tile.r
+
+        let kind = -1
+        if (x >= 0 && x < 40 && y >= 0 && y < 40) {
+          kind = grid[y][x]
+        }
+        console.log("new tile = ", new_visible_tile, "x,y = ", x, y, "kind = ", kind)
+
+        possible_fov.push({...new_visible_tile, kind: kind, ontop: ""})
       }
     }
     
-    console.log(possible_fov)
+    const state = {
+      pos: center, 
+      fov: possible_fov,
+      visited_tiles: []
+    }
+    
+    console.log(state)
+
+    player_fovs[player.id] = JSON.stringify(state)
   })
 
-
+  // iterate over player_fovs keys
+  for (const [key, value] of Object.entries(player_fovs)) {
+    console.log(key, value);
+    await context.entities.PlayerInGame.update({
+      where: {
+        id: Number(key)
+      },
+      data: {
+        state: value
+      }
+    })
+  }
+  
+  // update game state to playing
+  await context.entities.Game.update({
+    where: {
+      id: game.id
+    },
+    data: {
+      started_at: new Date(),
+      state: "playing"
+    }
+  })
 }
 
 const axial_add = (hex: {q: number, r:number}, vec: {q: number, r:number}) => {

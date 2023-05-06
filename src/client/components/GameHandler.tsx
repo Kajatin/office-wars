@@ -19,9 +19,10 @@ export default function GameHandler(props: { user: User }) {
   const { data: game, isFetching, error } = useQuery(getGame);
   const prevGame = useRef(game); // Initialize the ref with the initial state
 
+  console.log(game)
   const lobbyName =
     game?.state === "playing" ? "Game in progress" : "Game Lobby";
-  const numPlayers = game?.users?.length || 0;
+  const numPlayers = game?.players?.length || 0;
 
   useEffect(() => {
     if (!game) {
@@ -69,7 +70,7 @@ function GameLobby(props: { game: any | null }) {
 
   return (
     <div className="flex flex-col gap-2 py-3 justify-center content-center">
-      <PlayerLobby players={game?.users} bounce={true} />
+      <PlayerLobby players={game?.players} bounce={true} />
 
       <div className="w-full mt-2 text-center uppercase text-2xl rounded border font-medium bg-indigo-50 border-indigo-400 py-2 text-indigo-600">
         {game?.code}
@@ -241,7 +242,7 @@ function GameCreation() {
 
 function PlayerLobby(props: { players: any | undefined; bounce: boolean }) {
   const { players, bounce } = props;
-
+  
   return (
     <div className="flex flex-row gap-3 flex-wrap">
       {players ? (
@@ -259,7 +260,7 @@ function PlayerLobby(props: { players: any | undefined; bounce: boolean }) {
                 background: player?.tank?.color,
               }}
             ></div>
-            <div className="text-xs">{player.username}</div>
+            <div className="text-xs">{player.user.username}</div>
           </div>
         ))
       ) : (
