@@ -1,27 +1,37 @@
-import HexProperties from "./hex_props";
+import HexProperties from "./props";
 
 export default class Hex {
   props;
 
-  constructor(q, r, s) {
+  constructor(q, r, s, props) {
     this.q = q;
     this.r = r;
     this.s = s;
-    this.props = new HexProperties();
+
+    this.h = 0;
+    this.g = 0;
+    this.f = 0;
+    this.previous = null;
+
+    this.props = new HexProperties(props);
     if (Math.round(q + r + s) !== 0) throw "q + r + s must be 0";
   }
 
-  static offset_to_axial(row, col) {
+  static offsetToAxial(row, col) {
     var q = col - (row - (row & 1)) / 2;
     var r = row;
     var s = -q - r;
     return { q, r, s };
   }
 
-  static axial_to_offset(q, r) {
+  static axialToOffset(q, r) {
     var col = q + (r - (r & 1)) / 2;
     var row = r;
     return row, col;
+  }
+
+  params() {
+    return { q: this.q, r: this.r, s: this.s };
   }
 
   add(b) {
@@ -90,12 +100,12 @@ export default class Hex {
     let qi = Math.round(this.q);
     let ri = Math.round(this.r);
     let si = Math.round(this.s);
-    let q_diff = Math.abs(qi - this.q);
-    let r_diff = Math.abs(ri - this.r);
-    let s_diff = Math.abs(si - this.s);
-    if (q_diff > r_diff && q_diff > s_diff) {
+    let qDiff = Math.abs(qi - this.q);
+    let rDiff = Math.abs(ri - this.r);
+    let sDiff = Math.abs(si - this.s);
+    if (qDiff > rDiff && qDiff > sDiff) {
       qi = -ri - si;
-    } else if (r_diff > s_diff) {
+    } else if (rDiff > sDiff) {
       ri = -qi - si;
     } else {
       si = -qi - ri;
@@ -112,17 +122,21 @@ export default class Hex {
   }
 
   linedraw(b) {
-    let N = this.distance(b);
-    let a_nudge = new Hex(
-      this.q + 0.000001,
-      this.r + 0.000001,
-      this.s - 0.000002
-    );
-    let b_nudge = new Hex(b.q + 0.000001, b.r + 0.000001, b.s - 0.000002);
     let results = [];
-    let step = 1.0 / Math.max(N, 1);
-    for (let i = 0; i <= N; i++) {
-      results.push(a_nudge.lerp(b_nudge, step * i).round());
+    try {
+      let N = this.distance(b);
+      let aNudge = new Hex(
+        this.q + 0.000001,
+        this.r + 0.000001,
+        this.s - 0.000002
+      );
+      let bNudge = new Hex(b.q + 0.000001, b.r + 0.000001, b.s - 0.000002);
+      let step = 1.0 / Math.max(N, 1);
+      for (let i = 0; i <= N; i++) {
+        results.push(aNudge.lerp(bNudge, step * i).round());
+      }
+    } catch (e) {
+      console.error(e);
     }
     return results;
   }

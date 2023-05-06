@@ -2,6 +2,7 @@ import { User, Tank } from "@wasp/entities";
 import { useQuery } from "@wasp/queries";
 
 import { useState, useEffect } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 
 import LoadingSpinner from "./LoadingSpinner";
 
@@ -51,7 +52,7 @@ export default function TankCustomizer(props: { user: User }) {
 
   return (
     <div className="flex flex-col min-w-[24rem] w-full h-full sm:w-fit justify-center">
-      <div className="rounded-lg px-4 pt-2 pb-4 drop-shadow-md bg-white">
+      <div className="rounded-lg px-4 pt-2 pb-4">
         <div className="flex flex-row justify-between font-medium text-2xl py-1 border-b items-center">
           <div className="flex flex-row gap-1">
             <input
@@ -69,12 +70,78 @@ export default function TankCustomizer(props: { user: User }) {
               </span>
             </div>
           </div>
-          <button
-            className="flex self-center opacity-60 hover:opacity-100"
-            onClick={logout}
-          >
-            <span className="material-symbols-outlined">logout</span>
-          </button>
+
+          <div className="flex flex-row gap-1">
+            <AnimatePresence>
+              {(!tank || changed) && (
+                <motion.button
+                  className="flex self-center text-stone-700 hover:bg-indigo-50 hover:text-indigo-600 rounded transition-all duration-300"
+                  initial={{ opacity: 0, scale: 0.5 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.5 }}
+                  transition={{ duration: 0.2 }}
+                  onClick={async () => {
+                    try {
+                      const newTank: Tank = {
+                        agility: agility,
+                        armor: armor,
+                        accuracy: accuracy,
+                        attackPower: attackPower,
+                        color: color,
+                      };
+                      if (tank) {
+                        await updateTank(newTank);
+                      } else {
+                        await addTank(newTank);
+                      }
+                    } catch (err) {
+                      console.error(err);
+                      window.alert(err);
+                    }
+                  }}
+                >
+                  <span className="material-symbols-outlined self-center">
+                    save
+                  </span>
+                </motion.button>
+              )}
+            </AnimatePresence>
+
+            <AnimatePresence>
+              {tank && (
+                <motion.button
+                  className="flex self-center text-stone-700 hover:bg-pink-50 hover:text-pink-600 rounded transition-all duration-300"
+                  initial={{ opacity: 0, scale: 0.5 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.5 }}
+                  transition={{ duration: 0.2 }}
+                  onClick={async () => {
+                    try {
+                      if (!tank) {
+                        return;
+                      }
+
+                      await removeTank(tank.id);
+                    } catch (err) {
+                      console.error(err);
+                      window.alert(err);
+                    }
+                  }}
+                >
+                  <span className="material-symbols-outlined self-center">
+                    delete
+                  </span>
+                </motion.button>
+              )}
+            </AnimatePresence>
+
+            <button
+              className="flex self-center text-stone-700 hover:bg-stone-200 hover:text-stone-950 rounded transition-all duration-300"
+              onClick={logout}
+            >
+              <span className="material-symbols-outlined">logout</span>
+            </button>
+          </div>
         </div>
         {isFetching ? (
           <LoadingSpinner />
@@ -84,6 +151,21 @@ export default function TankCustomizer(props: { user: User }) {
           <div className="justify-center content-center">
             <Tank color={color} changed={changed} />
             <div>
+              {!tank && (
+                <AnimatePresence>
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <div className="flex flex-row gap-1 text-sm text-pink-600 items-center">
+                      <span className="material-symbols-outlined">error</span>
+                      <span>You must create a tank</span>
+                    </div>
+                  </motion.div>
+                </AnimatePresence>
+              )}
               <div className="flex justify-between font-medium text-lg items-center">
                 <span>Ability points</span>
                 <span className="text-base font-normal opacity-70">
@@ -118,61 +200,6 @@ export default function TankCustomizer(props: { user: User }) {
                 onChange={setAttackPower}
                 abilityPoints={abilityPoints}
               />
-
-              <div className="flex flex-col gap-2 mt-6">
-                <button
-                  className="w-full rounded border font-medium hover:bg-indigo-50 hover:border-indigo-400 py-1 text-stone-700 hover:text-indigo-600"
-                  onClick={async () => {
-                    try {
-                      const newTank: Tank = {
-                        agility: agility,
-                        armor: armor,
-                        accuracy: accuracy,
-                        attackPower: attackPower,
-                        color: color,
-                      };
-                      if (tank) {
-                        await updateTank(newTank);
-                      } else {
-                        await addTank(newTank);
-                      }
-                    } catch (err) {
-                      console.error(err);
-                      window.alert(err);
-                    }
-                  }}
-                >
-                  <div className="flex flex-row gap-1 justify-center">
-                    <span>{tank ? "Update" : "Save"}</span>
-                    <span className="material-symbols-outlined self-center">
-                      upload
-                    </span>
-                  </div>
-                </button>
-
-                <button
-                  className="w-full rounded border font-medium hover:bg-pink-50 hover:border-pink-400 py-1 text-stone-700 hover:text-pink-600"
-                  onClick={async () => {
-                    try {
-                      if (!tank) {
-                        return;
-                      }
-
-                      await removeTank(tank.id);
-                    } catch (err) {
-                      console.error(err);
-                      window.alert(err);
-                    }
-                  }}
-                >
-                  <div className="flex flex-row gap-1 justify-center">
-                    <span>Delete</span>
-                    <span className="material-symbols-outlined self-center">
-                      delete
-                    </span>
-                  </div>
-                </button>
-              </div>
             </div>
           </div>
         )}
@@ -195,7 +222,7 @@ function Ability(props: {
       <div className="flex items-center">
         <button
           className={
-            "flex rounded p-1 text-lg text-stone-600 " +
+            "flex rounded p-1 text-lg text-stone-600 transition-all duration-300 " +
             (value <= 0
               ? "opacity-50"
               : "hover:text-stone-900 hover:bg-stone-100")
@@ -216,7 +243,7 @@ function Ability(props: {
             <div
               key={i}
               className={
-                "w-3 h-6 rounded bg-stone-500 flex items-center justify-center " +
+                "w-3 h-6 rounded bg-stone-500 flex items-center justify-center transition-all duration-150 " +
                 (i < value ? "opacity-100" : "opacity-30")
               }
             />
@@ -224,7 +251,7 @@ function Ability(props: {
         </div>
         <button
           className={
-            "flex rounded p-1 text-lg text-stone-600 " +
+            "flex rounded p-1 text-lg text-stone-600 transition-all duration-300 " +
             (value >= 10 || abilityPoints <= 0
               ? "opacity-50"
               : "hover:text-stone-900 hover:bg-stone-100")
@@ -249,10 +276,13 @@ function Tank(props: { color: string; changed: boolean }) {
   const { color, changed } = props;
   return (
     <div
-      className={"flex justify-center py-8 " + (changed ? "animate-pulse" : "")}
+      className={
+        "group flex justify-center py-8 relative overflow-hidden " +
+        (changed ? "animate-pulse" : "")
+      }
     >
       <svg
-        className="w-52"
+        className="w-52 hover:scale-110 hover:drop-shadow-md transition-all"
         style={{
           color: color,
         }}
@@ -305,6 +335,7 @@ function Tank(props: { color: string; changed: boolean }) {
           strokeWidth="3"
         />
       </svg>
+      <div className="absolute top-0 -inset-full h-full w-1/3 z-5 block transform -skew-x-12 bg-gradient-to-r from-transparent to-white opacity-30 animate-shine" />
     </div>
   );
 }

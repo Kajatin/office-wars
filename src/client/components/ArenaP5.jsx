@@ -12,26 +12,59 @@ function ArenaP5(props) {
 
   useEffect(() => {
     const sketch = new p5((p5) => {
-      let gameOld;
+      let game;
 
       window.p5 = p5;
 
       p5.setup = () => {
         const canvas = p5.createCanvas(canvasRef.current.offsetWidth, canvasRef.current.offsetHeight);
         canvas.parent(canvasRef.current);
-
-        // Set the color mode to RGB
         p5.colorMode(p5.RGB);
-        p5.background(250);
 
-        gameOld = new Game(20, pointy, p5.createVector(20, 20), p5.createVector(p5.width / 2, 0));
+        const hexSize = Math.min(p5.width / 15, p5.height / 15);
+        game = new Game(fov, tank, pointy, p5.createVector(hexSize, hexSize), p5.createVector(0, 0));
       };
 
       p5.draw = () => {
-        gameOld.draw();
+        p5.background(250, 250, 249);
+        for (let i = 0; i < 30; i++) {
+          p5.push();
+          p5.stroke(p5.random(255), p5.random(255), p5.random(255), 20);
+          p5.strokeWeight(3);
+          p5.line(p5.random(p5.width), p5.random(p5.height), p5.random(p5.width), p5.random(p5.height));
+          p5.pop();
+        }
 
-        if (p5.mouseIsPressed) {
-          gameOld.selectHex(p5.mouseX, p5.mouseY);
+        game.draw();
+
+        // pan the map with the arrow keys
+        if (p5.keyIsDown(p5.RIGHT_ARROW)) {
+          game.moveMap(15, 0);
+        }
+        if (p5.keyIsDown(p5.LEFT_ARROW)) {
+          game.moveMap(-15, 0);
+        }
+        if (p5.keyIsDown(p5.DOWN_ARROW)) {
+          game.moveMap(0, 15);
+        }
+        if (p5.keyIsDown(p5.UP_ARROW)) {
+          game.moveMap(0, -15);
+        }
+
+        // zoom in and out with with the mouse wheel and [ ] keys
+        if (p5.keyIsDown(221)) {
+          game.scaleMap(0.01);
+        }
+        if (p5.keyIsDown(219)) {
+          game.scaleMap(-0.01);
+        }
+
+        if (p5.mouseIsPressed && p5.mouseButton === p5.LEFT) {
+          if (p5.mouseX < 0 || p5.mouseX > p5.width || p5.mouseY < 0 || p5.mouseY > p5.height) {
+            return;
+          }
+          game.selectHex(p5.mouseX, p5.mouseY);
+          // game.movePos(p5.mouseX, p5.mouseY);
         }
       };
     });
@@ -40,7 +73,7 @@ function ArenaP5(props) {
     return () => {
       sketch.remove();
     };
-  }, [canvasRef]);
+  }, [canvasRef, fov]);
 
   return <div ref={canvasRef} style={{ height: 'calc(100vh - 4.2rem)', width: 'calc(100vw - 1.5rem)' }} />;
 }

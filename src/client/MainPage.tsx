@@ -5,7 +5,7 @@ import TankCustomizer from "./components/TankCustomizer";
 
 export default function MainPage({ user }: { user: User }) {
   return (
-    <div className="flex flex-col md:flex-row gap-16">
+    <div className="flex flex-col md:flex-row gap-10 md:gap-24">
       <div className="flex max-w-sm">
         <TankCustomizer user={user} />
       </div>

@@ -12,7 +12,7 @@ export async function getTank(args: any, context: any): Promise<Tank> {
   });
 }
 
-export async function getGame(args: any, context: any): Promise<Game | null> {
+export async function getGame(args: any, context: any): Promise<any | null> {
   if (!context.user) {
     throw new HttpError(401, "You must be logged in to add a tank.");
   }

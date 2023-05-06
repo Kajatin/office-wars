@@ -63,11 +63,6 @@ function Arena(props: { game: any | null }) {
 
   return (
     <div>
-      <div className="flex flex-col gap-2">
-        <div className="bg-red-100">{JSON.stringify(game)}</div>
-        <div className="bg-green-100">{JSON.stringify(tank)}</div>
-        <div className="bg-blue-100">{JSON.stringify(fov)}</div>
-      </div>
       <div className="w-full h-full">
         {isFetching ? (
           <LoadingSpinner />
