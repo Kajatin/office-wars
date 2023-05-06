@@ -9,7 +9,7 @@ export default class Map {
     const playerStateObj = JSON.parse(fov);
     console.log("playerStateObj=", playerStateObj);
     this.pos = playerStateObj?.pos || { q: 0, r: 0 };
-    console.log("this.pos=",  this.pos);
+    console.log("this.pos=", this.pos);
     this.center = this.layout.hexToPixel(this.pos);
     this.zoom = 1;
 
@@ -24,7 +24,7 @@ export default class Map {
         const hex = new Hex(q, r, s, props);
         if (props) {
           console.log("props=", props);
-          hex.props.setVisible(true)
+          hex.props.setVisible(true);
         }
 
         this.map.push(hex);

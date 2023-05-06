@@ -76,6 +76,7 @@ query getState {
 
 action addTank {
   fn: import { addTank } from "@server/actions.js",
+  entities: [Tank]
 }
 
 action updateTank {
@@ -90,7 +91,7 @@ action removeTank {
 
 action generateGame {
   fn: import { generateGame } from "@server/actions.js",
-  entities: [Game, Board]
+  entities: [User, Game, Board]
 }
 
 action abandonGame {
@@ -145,8 +146,8 @@ psl=}
 entity Board {=psl
   id      Int     @id @default(autoincrement())
   game    Game    @relation(fields: [gameId], references: [id])
-  gameId  Int     @unique 
-  state   String   @default("[]")   
+  gameId  Int     @unique
+  state   String   @default("[]")
 psl=}
 
 entity PlayerInGame {=psl
@@ -180,7 +181,7 @@ psl=}
 entity PlayInGame {=psl
   id          Int             @id @default(autoincrement())
   player      PlayerInGame    @relation(fields: [playerId], references: [id])
-  playerId    Int    
+  playerId    Int
   game        Game            @relation(fields: [gameId], references: [id])
   gameId      Int
   play        String           @default("")

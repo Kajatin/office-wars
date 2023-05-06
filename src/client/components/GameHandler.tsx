@@ -20,8 +20,7 @@ export default function GameHandler(props: { user: User }) {
   const prevGame = useRef(game); // Initialize the ref with the initial state
 
   console.log(game)
-  const lobbyName =
-    game?.state === "playing" ? "Game in progress" : "Game Lobby";
+  const lobbyName = game?.state === "playing" ? "Game in progress" : "Game Lobby";
   const numPlayers = game?.players?.length || 0;
 
   useEffect(() => {
@@ -242,7 +241,7 @@ function GameCreation() {
 
 function PlayerLobby(props: { players: any | undefined; bounce: boolean }) {
   const { players, bounce } = props;
-  
+
   return (
     <div className="flex flex-row gap-3 flex-wrap">
       {players ? (
