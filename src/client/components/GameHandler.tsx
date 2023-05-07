@@ -211,7 +211,7 @@ function GameCreation(props: { tankId: number | null }) {
               return;
             }
 
-            await joinGame(code);
+            await joinGame({ gameCode: code, tankId: tankId });
             setCode("");
           } catch (err) {
             console.error(err);

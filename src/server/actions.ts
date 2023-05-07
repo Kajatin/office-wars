@@ -307,10 +307,14 @@ export async function abandonGame(gameId: number | null, context: any) {
 }
 
 export async function joinGame(
-  gameCode: string,
-  tankId: number,
+  args: {
+    gameCode: string;
+    tankId: number | null;
+  },
   context: any
 ): Promise<boolean> {
+  const { gameCode, tankId } = args;
+
   if (!context.user) {
     throw new HttpError(401, "You must be logged in to generate a game.");
   }
@@ -319,7 +323,7 @@ export async function joinGame(
     throw new HttpError(400, "You must provide details");
   }
 
-  // Ensure that the game exists and is in the lobby state.
+  // Ensure that the game exists and is in the lobby state
   const game = await context.entities.Game.findUnique({
     where: { code: gameCode },
   });
@@ -332,12 +336,25 @@ export async function joinGame(
     throw new HttpError(400, 'Game is not in the "lobby" state.');
   }
 
-  // Ensure that the user is not already in a game and that they have a tank.
+  // Ensure that the user owns the tank
+  const tank = await context.entities.Tank.findUnique({
+    where: { id: tankId },
+  });
+
+  if (!tank) {
+    throw new HttpError(400, "You must provide a valid tank id.");
+  }
+
+  if (tank.creatorId !== context.user.id) {
+    throw new HttpError(401, "You must own the tank to generate a game.");
+  }
+
+  // Ensure that the user is not already in a game and that they have a tank
   const playerInGame = await context.entities.PlayerInGame.findUnique({
     where: {
-      userId_gameId: {
-        userId: context.user.id,
+      gameId_userId: {
         gameId: game.id,
+        userId: context.user.id,
       },
     },
   });
@@ -356,14 +373,13 @@ export async function joinGame(
     visited_tiles: [],
   };
 
-  // TODO check that the tank is from the player
   await context.entities.PlayerInGame.create({
     data: {
-      order: players.length,
-      userId: context.user.id,
       gameId: game.id,
+      tankId: tank.id,
+      userId: context.user.id,
+      order: players.length,
       state: JSON.stringify(player_state),
-      tankId: tankId,
     },
   });
 

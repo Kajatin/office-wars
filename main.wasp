@@ -58,7 +58,7 @@ query getTank {
 
 query getGame {
   fn: import { getGame } from "@server/queries.js",
-  entities: [Game, User]
+  entities: [Game, User, PlayerInGame]
 }
 
 query getFOV {
@@ -100,7 +100,7 @@ action abandonGame {
 
 action joinGame {
   fn: import { joinGame } from "@server/actions.js",
-  entities: [Game, PlayerInGame]
+  entities: [Game, Tank, PlayerInGame]
 }
 
 action launchGame {
