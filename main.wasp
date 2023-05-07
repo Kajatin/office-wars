@@ -105,7 +105,7 @@ action joinGame {
 
 action launchGame {
   fn: import { launchGame } from "@server/actions.js",
-  entities: [Game, User, PlayerInGame]
+  entities: [Game, User, PlayerInGame, Board]
 }
 
 action spawnPlayers {

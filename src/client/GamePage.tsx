@@ -9,25 +9,31 @@ import { useQuery } from "@wasp/queries";
 import ArenaP5 from "./components/ArenaP5";
 
 import logout from "@wasp/auth/logout";
-import getGame from "@wasp/queries/getGame";
 import getState from "@wasp/queries/getState";
 import actionInGame from "@wasp/actions/actionInGame";
 import LoadingSpinner from "./components/LoadingSpinner";
 
 export default function GamePage({ user }: { user: User }) {
-  const { data: game, isFetching, error } = useQuery(getGame);
-
   const history = useHistory();
 
+  const { data: state, isFetching, error } = useQuery(getState);
   const [selectedHex, setSelectedHex] = useState(null);
 
   return (
     <>
       <div className="flex w-screen h-screen pt-14 px-3">
-        <Arena game={game} setSelectedHex={setSelectedHex} />
+        <div className="w-full h-full">
+          {isFetching ? (
+            <LoadingSpinner />
+          ) : error ? (
+            <div>Error: {error}</div>
+          ) : (
+            <Arena state={state} setSelectedHex={setSelectedHex} />
+          )}
+        </div>
       </div>
 
-      <GameAction selectedHex={selectedHex} />
+      <GameAction state={state} selectedHex={selectedHex} />
 
       <div className="fixed top-0 w-full border-b bg-white shadow-sm">
         <div className="flex flex-row px-4 py-2 justify-between font-medium text-2xl items-center">
@@ -63,37 +69,21 @@ export default function GamePage({ user }: { user: User }) {
   );
 }
 
-function Arena(props: {
-  game: any | null;
-  setSelectedHex: (hex: any) => void;
-}) {
-  const { game, setSelectedHex } = props;
-  const { data: state, isFetching, error } = useQuery(getState);
-  
+function Arena(props: { state: any; setSelectedHex: (hex: any) => void }) {
+  const { state, setSelectedHex } = props;
+
   return (
-    <div>
-      <div className="w-full h-full">
-        {isFetching ? (
-          <LoadingSpinner />
-        ) : error ? (
-          <div>Error: {error}</div>
-        ) : (
-          <ArenaP5
-            game={state![0]}
-            tank={state![1].tank}
-            fov={state![1].state}
-            setSelectedHex={setSelectedHex}
-          />
-        )}
-      </div>
-    </div>
+    <ArenaP5
+      game={state?.[0]}
+      tank={state?.[1].tank}
+      fov={state?.[1].state}
+      setSelectedHex={setSelectedHex}
+    />
   );
 }
 
-function GameAction(props: { selectedHex: any | null }) {
-  const { selectedHex } = props;
-
-  console.log("selectedHex", selectedHex);
+function GameAction(props: { state: any; selectedHex: any | null }) {
+  const { state, selectedHex } = props;
 
   return (
     <AnimatePresence>
@@ -124,7 +114,18 @@ function GameAction(props: { selectedHex: any | null }) {
               {selectedHex.props.kind}
             </div>
 
-            <button onClick={async () => await actionInGame({ gameID: 2, action: { action: "move", info: { q: selectedHex.q, r: selectedHex.r } } })} className="w-full px-8 rounded border border-stone-500 font-medium text-sm hover:bg-indigo-50 hover:border-indigo-400 py-1 text-stone-700 hover:text-indigo-600 transition-all duration-300">
+            <button
+              onClick={async () =>
+                await actionInGame({
+                  gameID: state[0].id,
+                  action: {
+                    action: "move",
+                    info: { q: selectedHex.q, r: selectedHex.r },
+                  },
+                })
+              }
+              className="w-full px-8 rounded border border-stone-500 font-medium text-sm hover:bg-indigo-50 hover:border-indigo-400 py-1 text-stone-700 hover:text-indigo-600 transition-all duration-300"
+            >
               <div className="flex flex-row gap-1 justify-center items-center">
                 <span>Move</span>
                 <span className="material-symbols-outlined self-center">

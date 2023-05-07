@@ -247,8 +247,6 @@ function GameCreation(props: { tankId: number | null }) {
 function PlayerLobby(props: { players: any | undefined; bounce: boolean }) {
   const { players, bounce } = props;
 
-  console.log("players", players);
-
   return (
     <div className="flex flex-row gap-3 flex-wrap">
       {players ? (

@@ -444,6 +444,8 @@ export async function launchGame(
     throw new HttpError(500, "Failed to update game state.");
   }
 
+  await spawnPlayers({ gameid: gameId }, context);
+
   return game_updated?.id || null;
 }
 
@@ -452,21 +454,18 @@ export const nextTurn = async () => {
 };
 
 export const spawnPlayers = async (args: { gameid: number }, context: any) => {
+  const { gameid } = args;
   console.log("Spawning players");
 
   // Olny admins can spawn players and start the game
-  assert(context.user);
+  assert(context.user, "You must be logged in to spawn players");
 
   // Get the game the user is admin
-  const game = await context.entities.Game.findFirst({
+  const game = await context.entities.Game.findUnique({
     where: {
-      adminId: context.user.id,
+      id: gameid,
     },
   });
-
-  assert(game);
-
-  assert(game.id == args.gameid);
 
   // Get all the players in the game
   const players = await context.entities.PlayerInGame.findMany({
@@ -475,7 +474,7 @@ export const spawnPlayers = async (args: { gameid: number }, context: any) => {
     },
   });
 
-  assert(players.length > 0);
+  assert(players.length > 0, "There must be at least one player in the game");
 
   // Get the board
   const board = await context.entities.Board.findFirst({
@@ -484,7 +483,7 @@ export const spawnPlayers = async (args: { gameid: number }, context: any) => {
     },
   });
 
-  assert(board);
+  assert(board, "There must be a board for the game");
 
   const player_fovs: { [key: number]: string } = {};
 
@@ -524,7 +523,15 @@ export const spawnPlayers = async (args: { gameid: number }, context: any) => {
         if (x >= 0 && x < 40 && y >= 0 && y < 40) {
           kind = grid[y][x];
         }
-        console.log("new tile = ", new_visible_tile, "x,y = ", x, y, "kind = ", kind)
+        console.log(
+          "new tile = ",
+          new_visible_tile,
+          "x,y = ",
+          x,
+          y,
+          "kind = ",
+          kind
+        );
 
         possible_fov.push({ ...new_visible_tile, kind: kind, ontop: "" });
       }
@@ -566,85 +573,100 @@ export const spawnPlayers = async (args: { gameid: number }, context: any) => {
   });
 };
 
-const axial_add = (hex: { q: number, r: number }, vec: { q: number, r: number }) => {
-  return { q: hex.q + vec.q, r: hex.r + vec.r }
-}
+const axial_add = (
+  hex: { q: number; r: number },
+  vec: { q: number; r: number }
+) => {
+  return { q: hex.q + vec.q, r: hex.r + vec.r };
+};
 
-export const actionInGame = async (args: { gameID: number, action: {action: string, info: any} }, context: any) => {
-    console.log("action in game")
+export const actionInGame = async (
+  args: { gameID: number; action: { action: string; info: any } },
+  context: any
+) => {
+  console.log("action in game");
 
-    // get the game
-    const game = await context.entities.Game.findFirst({
-        where: {
-            id: args.gameID
+  // get the game
+  const game = await context.entities.Game.findFirst({
+    where: {
+      id: args.gameID,
+    },
+  });
+  assert(game);
+
+  // check if the user is in the game
+  const player = await context.entities.PlayerInGame.findFirst({
+    where: {
+      userId: context.user.id,
+      gameId: args.gameID,
+    },
+  });
+  assert(player);
+
+  // get the board
+  const board = await context.entities.Board.findFirst({
+    where: {
+      gameId: args.gameID,
+    },
+  });
+  assert(board);
+
+  const action = args.action;
+
+  if (action.action == "move") {
+    console.log("move action" + " " + action.info);
+    const player_state = JSON.parse(player.state);
+    const action_info = action.info;
+
+    // TODO check if the move is valid
+
+    // re-calculating fov
+    const grid = JSON.parse(board.state).grid;
+    const center = action_info;
+
+    let possible_fov: { q: number; r: number; kind: number; ontop: string }[] =
+      [];
+    const N = 3;
+    for (let q = -N; q <= N; q++) {
+      const r1 = Math.max(-N, -q - N);
+      const r2 = Math.min(N, -q + N);
+      for (let r = r1; r <= r2; r++) {
+        const new_visible_tile = axial_add(center, { q: q, r: r });
+        const x = new_visible_tile.q + Math.floor(new_visible_tile.r / 2);
+        const y = new_visible_tile.r;
+
+        let kind = -1;
+        if (x >= 0 && x < 40 && y >= 0 && y < 40) {
+          kind = grid[y][x];
         }
-    })
-    assert(game)
-    
-    // check if the user is in the game
-    const player = await context.entities.PlayerInGame.findFirst({
-        where: {
-            userId: context.user.id,
-            gameId: args.gameID
-        }
-    })
-    assert(player)
-    
-    // get the board
-    const board = await context.entities.Board.findFirst({
-        where: {
-            gameId: args.gameID
-        }
-    })
-    assert(board)
-    
-    const action = args.action
-    
-    if (action.action == "move") {
-        console.log("move action" + " " + action.info)
-        const player_state = JSON.parse(player.state)
-        const action_info = action.info
-        
-        // TODO check if the move is valid
-        
-        // re-calculating fov
-        const grid = JSON.parse(board.state).grid
-        const center = action_info
+        console.log(
+          "new tile = ",
+          new_visible_tile,
+          "x,y = ",
+          x,
+          y,
+          "kind = ",
+          kind
+        );
 
-        let possible_fov: { q: number, r: number, kind: number, ontop: string }[] = []
-        const N = 3
-        for (let q = -N; q <= N; q++) {
-            const r1 = Math.max(-N, -q - N);
-            const r2 = Math.min(N, -q + N);
-            for (let r = r1; r <= r2; r++) {
-                const new_visible_tile = axial_add(center, { q: q, r: r })
-                const x = new_visible_tile.q + Math.floor(new_visible_tile.r / 2)
-                const y = new_visible_tile.r
-
-                let kind = -1
-                if (x >= 0 && x < 40 && y >= 0 && y < 40) {
-                    kind = grid[y][x]
-                }
-                console.log("new tile = ", new_visible_tile, "x,y = ", x, y, "kind = ", kind)
-
-                possible_fov.push({ ...new_visible_tile, kind: kind, ontop: "" })
-            }
-        }
-
-        const new_state = {
-            ...player_state,
-            pos: center,
-            fov: possible_fov,
-        }
-        
-        // update player
-        await context.entities.PlayerInGame.update({
-            where: {
-                id: player.id
-            },
-            data: {
-                state: JSON.stringify(new_state)
-            }
-        })
+        possible_fov.push({ ...new_visible_tile, kind: kind, ontop: "" });
+      }
     }
-}
+
+    const new_state = {
+      ...player_state,
+      pos: center,
+      fov: possible_fov,
+    };
+
+    // update player
+    await context.entities.PlayerInGame.update({
+      where: {
+        id: player.id,
+      },
+      data: {
+        state: JSON.stringify(new_state),
+      },
+    });
+  }
+};
