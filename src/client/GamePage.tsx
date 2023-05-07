@@ -60,13 +60,21 @@ export default function GamePage({ user }: { user: User }) {
             </div>
           </div>
 
-          <div className="flex flex-row gap-1">
-            <div>{state?.[0].code}</div>
-            <div>{state?.[1].tank.accuracy}</div>
-            <div>{state?.[1].tank.agility}</div>
-            <div>{state?.[1].tank.armor}</div>
-            <div>{state?.[1].tank.attackPower}</div>
-            <div>{state?.[1].hp}</div>
+          <div className="flex flex-row items-center gap-2">
+            <div className="text-center uppercase px-1 text-2xl rounded border font-medium bg-indigo-50 border-indigo-400 text-indigo-600">
+              {state?.[0].code}
+            </div>
+
+            <div className="w-[0.1rem] h-6 bg-stone-300 rounded mx-4"></div>
+
+            <Attribute icon="point_scan" value={state?.[1].tank.accuracy} />
+            <Attribute icon="blur_short" value={state?.[1].tank.agility} />
+            <Attribute icon="shield" value={state?.[1].tank.armor} />
+            <Attribute icon="bolt" value={state?.[1].tank.attackPower} />
+
+            <div className="w-[0.1rem] h-6 bg-stone-300 rounded mx-4"></div>
+
+            <HP hp={state?.[1].hp || 0} maxHp={100} />
           </div>
 
           <div className="flex flex-row gap-1">
@@ -89,6 +97,54 @@ export default function GamePage({ user }: { user: User }) {
         </div>
       </div>
     </>
+  );
+}
+
+function HP(props: { hp: number; maxHp: number }) {
+  const { hp, maxHp } = props;
+  const hpPercentage = (hp / maxHp) * 100;
+
+  const getColor = (percentage: number) => {
+    if (percentage <= 25) {
+      return "text-pink-500";
+    } else if (percentage <= 50) {
+      return "text-yellow-500";
+    } else {
+      return "text-indigo-500";
+    }
+  };
+
+  const getBgColor = (percentage: number) => {
+    if (percentage <= 25) {
+      return "bg-pink-500 bg-opacity-20";
+    } else if (percentage <= 50) {
+      return "bg-yellow-500 bg-opacity-20";
+    } else {
+      return "bg-indigo-500 bg-opacity-20";
+    }
+  };
+
+  return (
+    <div
+      className={
+        "flex flex-row px-1 gap-1 items-center text-center uppercase text-2xl rounded font-medium text-stone-500 " +
+        getBgColor(hpPercentage)
+      }
+    >
+      <span className="material-symbols-outlined">vital_signs</span>
+      <div className={"" + getColor(hpPercentage)}>{hp}</div>
+    </div>
+  );
+}
+
+function Attribute(props: { icon: string; value: number }) {
+  const { icon, value } = props;
+
+  return (
+    <div className="flex px-1 bg-stone-100 flex-row gap-1 items-center text-center uppercase text-2xl rounded font-medium text-stone-800">
+      <span className="material-symbols-outlined text-stone-500">{icon}</span>
+      <div>{value}</div>
+    </div>
   );
 }
 
