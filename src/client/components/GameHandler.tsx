@@ -22,8 +22,6 @@ export default function GameHandler(props: {
   const { data: game, isFetching, error } = useQuery(getGame, tankId);
   const prevGame = useRef(game); // Initialize the ref with the initial state
 
-  console.log(game);
-
   const lobbyName =
     game?.state === "playing" ? "Game in progress" : "Game Lobby";
   const numPlayers = game?.players?.length || 0;
@@ -86,13 +84,13 @@ function GameLobby(props: { game: any | null }) {
       <div className="flex flex-row gap-2 justify-center mt-2">
         <button
           className="w-full px-8 bg-white rounded border font-medium hover:bg-indigo-50 hover:border-indigo-400 py-2 text-stone-700 hover:text-indigo-600 transition-all duration-300"
-          onClick={() => {
+          onClick={async () => {
             try {
               if (!game) {
                 return;
               }
 
-              launchGame(game.id);
+              await launchGame(game.id);
             } catch (err) {
               console.error(err);
               window.alert(err);
@@ -109,9 +107,9 @@ function GameLobby(props: { game: any | null }) {
 
         <button
           className="w-full px-8 bg-white rounded border font-medium hover:bg-pink-50 hover:border-pink-400 py-2 text-stone-700 hover:text-pink-600 transition-all duration-300"
-          onClick={() => {
+          onClick={async () => {
             try {
-              abandonGame(game?.id || null);
+              await abandonGame(game?.id || null);
             } catch (err) {
               console.error(err);
               window.alert(err);

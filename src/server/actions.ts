@@ -389,7 +389,7 @@ export async function joinGame(
 export async function launchGame(
   gameId: number,
   context: any
-): Promise<boolean> {
+): Promise<number | null> {
   if (!context.user) {
     throw new HttpError(401, "You must be logged in to generate a game.");
   }
@@ -398,22 +398,22 @@ export async function launchGame(
     throw new HttpError(400, "You must provide a game ID.");
   }
 
-  // Ensure that the user is not already in a game and that they have a tank.
-  const user = await context.entities.User.findUnique({
-    where: { id: context.user.id },
+  const playerInGame = await context.entities.PlayerInGame.findUnique({
+    where: {
+      gameId_userId: {
+        gameId: gameId,
+        userId: context.user.id,
+      },
+    },
   });
 
-  if (!user) {
-    throw new HttpError(404, "User not found.");
+  if (!playerInGame) {
+    throw new HttpError(400, "You must be in the game to launch it.");
   }
 
-  if (!user.gameId || user.gameId !== gameId) {
-    throw new HttpError(403, "You are not part of this game.");
-  }
-
-  // Ensure that the game exists and is in the lobby state.
+  // Ensure that the game exists and is in the lobby state
   const game = await context.entities.Game.findUnique({
-    where: { id: gameId },
+    where: { id: playerInGame.gameId },
   });
 
   if (!game) {
@@ -424,6 +424,10 @@ export async function launchGame(
     throw new HttpError(400, 'Game is not in the "lobby" state.');
   }
 
+  if (game.adminId !== context.user.id) {
+    throw new HttpError(400, "You must be the admin to launch the game.");
+  }
+
   const game_updated = await context.entities.Game.update({
     where: { id: gameId },
     data: {
@@ -432,40 +436,15 @@ export async function launchGame(
     },
     select: {
       id: true,
-      users: true,
+      players: true,
     },
   });
 
-  game_updated.users.forEach(async (user: User) => {
-    const q = Math.floor(Math.random() * 10) + 1;
-    const r = Math.floor(Math.random() * 10) + 1;
-    const move = {
-      action: "spawn",
-      q: q,
-      r: r,
-    };
-    await context.entities.Turn.create({
-      data: {
-        gameId: game_updated.id,
-        userId: user.id,
-        move: JSON.stringify(move),
-        ended_at: new Date(),
-        current: false,
-      },
-    });
-  });
+  if (!game_updated) {
+    throw new HttpError(500, "Failed to update game state.");
+  }
 
-  const first_turn = {
-    gameId: game_updated.id,
-    userId: user.id,
-    move: JSON.stringify({}),
-    current: true,
-  };
-  await context.entities.Turn.create({
-    data: first_turn,
-  });
-
-  return true;
+  return game_updated?.id || null;
 }
 
 export const nextTurn = async () => {
