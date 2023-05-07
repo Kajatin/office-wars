@@ -83,6 +83,7 @@ export default function TankCustomizer(props: { user: User }) {
                   onClick={async () => {
                     try {
                       const newTank: Tank = {
+                        id: tank?.id || -1,
                         agility: agility,
                         armor: armor,
                         accuracy: accuracy,

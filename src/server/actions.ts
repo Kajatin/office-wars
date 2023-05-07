@@ -46,7 +46,73 @@ export async function addTank(tank: Tank, context: any) {
 }
 
 export async function updateTank(tank: Tank, context: any) {
-  throw new HttpError(500, "Not implemented");
+  if (!context.user) {
+    throw new HttpError(401, "You must be logged in to update a tank.");
+  }
+
+  if (
+    !tank ||
+    !tank.id ||
+    !tank.agility ||
+    !tank.armor ||
+    !tank.accuracy ||
+    !tank.attackPower ||
+    !tank.color
+  ) {
+    throw new HttpError(
+      400,
+      "Tank must have agility, armor, accuracy, attackPower, and color."
+    );
+  }
+
+  // Ensure the tank is not used in any active game
+  const tankObj = await context.entities.Tank.findUnique({
+    where: { id: tank.id },
+    include: {
+      usedOn: {
+        include: { game: true },
+      },
+    },
+  });
+
+  if (tankObj.creatorId !== context.user.id) {
+    throw new HttpError(
+      403,
+      "You cannot update a tank that you did not create."
+    );
+  }
+
+  tankObj.usedOn.forEach((playerInGame: any) => {
+    if (playerInGame.game.state !== "lobby") {
+      throw new HttpError(
+        403,
+        "You cannot update a tank while you are in a game."
+      );
+    }
+  });
+
+  // Ensure that the total of the tank's stats is less than or equal to 20.
+  const sum = tank.agility + tank.armor + tank.accuracy + tank.attackPower;
+  if (sum > 20 || sum < 0) {
+    throw new HttpError(
+      400,
+      "Total of tank's stats must be less than or equal to 20 and greater than 0."
+    );
+  }
+
+  // Add the tank to the database.
+  await context.entities.Tank.update({
+    where: { id: tank.id },
+    data: {
+      agility: tank.agility,
+      armor: tank.armor,
+      accuracy: tank.accuracy,
+      attackPower: tank.attackPower,
+      color: tank.color,
+    },
+  });
+
+  return true;
 }
 
 export async function removeTank(tankId: number, context: any) {
