@@ -81,12 +81,12 @@ action addTank {
 
 action updateTank {
   fn: import { updateTank } from "@server/actions.js",
-  entities: [Tank, Game]
+  entities: [Tank]
 }
 
 action removeTank {
   fn: import { removeTank } from "@server/actions.js",
-  entities: [Tank, Game]
+  entities: [Tank]
 }
 
 action generateGame {

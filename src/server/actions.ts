@@ -116,7 +116,37 @@ export async function updateTank(tank: Tank, context: any) {
 }
 
 export async function removeTank(tankId: number, context: any) {
-  throw new HttpError(500, "Not implemented");
+  if (!context.user) {
+    throw new HttpError(401, "You must be logged in to remove a tank.");
+  }
+
+  const tank = await context.entities.Tank.findUnique({
+    where: { id: tankId },
+    include: {
+      usedOn: {
+        include: { game: true },
+      },
+    },
+  });
+
+  if (!tank) {
+    throw new HttpError(404, "Tank not found.");
+  }
+
+  if (tank.creatorId !== context.user.id) {
+    throw new HttpError(403, "You can only remove your own tanks.");
+  }
+
+  if (tank.usedOn.length > 0) {
+    throw new HttpError(
+      403,
+      "You cannot remove a tank that is currently in use."
+    );
+  }
+
+  await context.entities.Tank.delete({ where: { id: tankId } });
+
+  return true;
 }
 
 function generateRandomString() {
