@@ -12,7 +12,7 @@ export default function GamePage({ user }: { user: User }) {
 
   const { data: tank } = useQuery(getTank);
 
-  const gameId = 39;
+  const gameId = 11;
   const { data: state } = useQuery(getState, { gameId: gameId });
 
   return (

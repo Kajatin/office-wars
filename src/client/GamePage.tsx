@@ -143,7 +143,16 @@ function GameAction(props: { state: any; selectedHex: any | null }) {
               </div>
             </button>
 
-            <button className="w-full px-8 rounded border border-stone-500 font-medium text-sm hover:bg-indigo-50 hover:border-indigo-400 py-1 text-stone-700 hover:text-indigo-600 transition-all duration-300">
+            <button
+              onClick={async () =>
+                await actionInGame({
+                  gameID: state[0].id,
+                  action: {
+                    action: "attack",
+                    info: { q: selectedHex.q, r: selectedHex.r },
+                  },
+                })}
+              className="w-full px-8 rounded border border-stone-500 font-medium text-sm hover:bg-indigo-50 hover:border-indigo-400 py-1 text-stone-700 hover:text-indigo-600 transition-all duration-300">
               <div className="flex flex-row gap-1 justify-center items-center">
                 <span>Attack</span>
                 <span className="material-symbols-outlined self-center">
@@ -162,7 +171,8 @@ function GameAction(props: { state: any; selectedHex: any | null }) {
             </button>
           </div>
         </motion.div>
-      )}
-    </AnimatePresence>
+      )
+      }
+    </AnimatePresence >
   );
 }

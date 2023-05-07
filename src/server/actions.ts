@@ -509,44 +509,15 @@ export const spawnPlayers = async (args: { gameid: number }, context: any) => {
       `Player ${player.id} will spawn at x,y (${x} ${y}) q,r (${q}, ${r})`
     );
 
-    grid[y][x][1] = {id: player.id, color: player.tank.color, username: player.user.username };
+    grid[y][x][1] = { id: player.id, color: player.tank.color, username: player.user.username };
 
     const center = { q: q, r: r };
 
-    let possible_fov: { q: number; r: number; kind: number; ontop: any }[] =
-      [];
-    const N = 3;
-    for (let q = -N; q <= N; q++) {
-      const r1 = Math.max(-N, -q - N);
-      const r2 = Math.min(N, -q + N);
-      for (let r = r1; r <= r2; r++) {
-        const new_visible_tile = axial_add(center, { q: q, r: r });
-        const x = new_visible_tile.q + Math.floor(new_visible_tile.r / 2);
-        const y = new_visible_tile.r;
-
-        let kind = -1;
-        let ontop = 0;
-        if (x >= 0 && x < 40 && y >= 0 && y < 40) {
-          kind = grid[y][x][0];
-          ontop = grid[y][x][1];
-        }
-        console.log(
-          "new tile = ",
-          new_visible_tile,
-          "x,y = ",
-          x,
-          y,
-          "kind = ",
-          kind
-        );
-
-        possible_fov.push({ ...new_visible_tile, kind: kind, ontop: ontop });
-      }
-    }
+    const [fov, sideeffects] = calculatefov(grid, center);
 
     const state = {
       pos: center,
-      fov: possible_fov,
+      fov: fov,
       visited_tiles: [],
     };
 
@@ -612,6 +583,8 @@ export const actionInGame = async (
   });
   assert(game);
 
+  // TODO check if the turn is correct
+
   // check if the user is in the game
   const player = await context.entities.PlayerInGame.findFirst({
     where: {
@@ -634,67 +607,39 @@ export const actionInGame = async (
   assert(board);
 
   const action = args.action;
+  const player_state = JSON.parse(player.state);
+  const action_info = action.info;
+  const board_state = JSON.parse(board.state)
+  const grid = board_state.grid;
 
   if (action.action == "move") {
-    console.log("move action" + " " + action.info);
-    const player_state = JSON.parse(player.state);
-    const action_info = action.info;
-
+    console.log("move action" + " " + JSON.stringify(action.info));
     // TODO check if the move is valid
 
     // re-calculating fov
-    const board_state = JSON.parse(board.state)
-    const grid = board_state.grid;
     const center = action_info;
     const centerx = center.q + Math.floor(center.r / 2);
     const centery = center.r;
-    const oldposx = player_state.pos.q + Math.floor(player_state.pos.r / 2); 
-    const oldposy = player_state.pos.r; 
+    const oldposx = player_state.pos.q + Math.floor(player_state.pos.r / 2);
+    const oldposy = player_state.pos.r;
     // update grid
     grid[oldposy][oldposx][1] = 0;
-    grid[centery][centerx][1] = {id: player.id, color: player.tank.color, username: player.user.username };
+    grid[centery][centerx][1] = { id: player.id, color: player.tank.color, username: player.user.username };
 
-    let possible_fov: { q: number; r: number; kind: number; ontop: number }[] =
-      [];
-    const N = 3;
-    for (let q = -N; q <= N; q++) {
-      const r1 = Math.max(-N, -q - N);
-      const r2 = Math.min(N, -q + N);
-      for (let r = r1; r <= r2; r++) {
-        const new_visible_tile = axial_add(center, { q: q, r: r });
-        const x = new_visible_tile.q + Math.floor(new_visible_tile.r / 2);
-        const y = new_visible_tile.r;
+    const [fov, sideeffects] = calculatefov(grid, center);
 
-        let kind = -1;
-        let ontop = -1;
-        if (x >= 0 && x < 40 && y >= 0 && y < 40) {
-          kind = grid[y][x][0];
-          ontop = grid[y][x][1];
-        }
-        
-        console.log(
-          "new tile = ",
-          new_visible_tile,
-          "x,y = ",
-          x,
-          y,
-          "kind = ",
-          kind
-        );
+    // TODO recaclulate fov for other players
 
-        possible_fov.push({ ...new_visible_tile, kind: kind, ontop: ontop });
-      }
-    }
 
     const new_state = {
       ...player_state,
       pos: center,
-      fov: possible_fov,
+      fov: fov,
     };
-    
-    const new_board_state = { grid: grid, turn: board_state.turn + 1};
 
-    
+    const new_board_state = { grid: grid, turn: board_state.turn + 1 };
+
+
     // update board
     await context.entities.Board.update({
       where: {
@@ -715,5 +660,65 @@ export const actionInGame = async (
         state: JSON.stringify(new_state),
       },
     });
+  } else if (action.action = "attack") {
+    console.log("move action" + " " + JSON.stringify(action.info));
+    const attack_pos = action_info;
+    const attackx = attack_pos.q + Math.floor(attack_pos.r / 2);
+    const attacky = attack_pos.r;
+
+    const grid_tile = grid[attacky][attackx];
+
+    if (grid_tile[1] != 0) {
+      // get the player
+      const attacked_player : PlayerInGame = await context.entities.PlayerInGame.findFirst({
+        where: {
+          id: grid_tile[1].id,
+        }
+      })
+
+      assert(attacked_player);
+
+      // reduce atttacked player hp
+      await context.entities.PlayerInGame.update({
+        where: {
+          id: attacked_player.id,
+        },
+        data: {
+          hp: attacked_player.hp - 25,
+        }
+      })
+    }
   }
 };
+
+
+const calculatefov = (grid: any, center: any) => {
+  let sideeffects: any[] = [];
+  let possible_fov: { q: number; r: number; kind: number; ontop: number }[] =
+    [];
+  const N = 3;
+  for (let q = -N; q <= N; q++) {
+    const r1 = Math.max(-N, -q - N);
+    const r2 = Math.min(N, -q + N);
+    for (let r = r1; r <= r2; r++) {
+      const new_visible_tile = axial_add(center, { q: q, r: r });
+      const x = new_visible_tile.q + Math.floor(new_visible_tile.r / 2);
+      const y = new_visible_tile.r;
+
+      let kind = -1;
+      let ontop = 0;
+      if (x >= 0 && x < 40 && y >= 0 && y < 40) {
+        kind = grid[y][x][0];
+        ontop = grid[y][x][1];
+        if (ontop !== 0) {
+          sideeffects.push(ontop);
+        }
+      }
+
+      possible_fov.push({ ...new_visible_tile, kind: kind, ontop: ontop });
+    }
+  }
+
+
+  return [possible_fov, sideeffects];
+}
