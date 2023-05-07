@@ -1,9 +1,9 @@
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import { useState } from "react";
 
 import { AnimatePresence, motion } from "framer-motion";
 
-import { PlayerInGame, User, Game } from "@wasp/entities";
+import { User } from "@wasp/entities";
 import { useQuery } from "@wasp/queries";
 
 import ArenaP5 from "./components/ArenaP5";
@@ -16,7 +16,16 @@ import LoadingSpinner from "./components/LoadingSpinner";
 export default function GamePage({ user }: { user: User }) {
   const history = useHistory();
 
-  const { data: state, isFetching, error } = useQuery(getState);
+  // Parse query params
+  const { search } = useLocation();
+  const params = new URLSearchParams(search);
+  const gameId = parseInt(params.get("id") || "");
+
+  const {
+    data: state,
+    isFetching,
+    error,
+  } = useQuery(getState, { gameId: gameId });
   const [selectedHex, setSelectedHex] = useState(null);
 
   return (

@@ -114,26 +114,33 @@ export const getFOV = async ({}, context: any) => {
   }
 };
 
-export const getState = async ({}, context: any): Promise<[Game, PlayerInGame]> => {
-  // TODO change this to be on the URL
-  // get user game
-  //
+export const getState = async (
+  args: {
+    gameId: number | null;
+  },
+  context: any
+): Promise<[Game, PlayerInGame]> => {
+  const { gameId } = args;
 
-  console.log("Getting state");
-  const games = await context.entities.Game.findMany({
+  if (!context.user) {
+    throw new HttpError(401, "You must be logged in to add a tank.");
+  }
+
+  if (!gameId) {
+    throw new HttpError(400, "You must provide a gameId.");
+  }
+
+  const game = await context.entities.Game.findUnique({
     where: {
-      players: {
-        some: {
-          userId: context.user.id,
-        },
-      },
+      id: gameId,
     },
   });
 
-  assert(games.length == 1, "User should be in exactly one game");
-  const game = games[0];
+  if (!game) {
+    throw new HttpError(400, "Game does not exist.");
+  }
 
-  const playeringame = await context.entities.PlayerInGame.findFirst({
+  const playerInGame = await context.entities.PlayerInGame.findFirst({
     where: {
       gameId: game.id,
       userId: context.user.id,
@@ -143,5 +150,9 @@ export const getState = async ({}, context: any): Promise<[Game, PlayerInGame]> 
     },
   });
 
-  return [game, playeringame];
+  if (!playerInGame) {
+    throw new HttpError(400, "You are not in this game.");
+  }
+
+  return [game, playerInGame];
 };

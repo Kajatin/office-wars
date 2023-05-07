@@ -51,7 +51,7 @@ function ArenaP5(props) {
           game.moveMap(0, -15);
         }
 
-        // zoom in and out with with the mouse wheel and [ ] keys
+        // zoom in and out with with the [ ] keys
         if (p5.keyIsDown(221)) {
           game.scaleMap(0.01);
         }

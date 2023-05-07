@@ -33,7 +33,7 @@ export default function GameHandler(props: {
 
     if (prevGame.current?.state === "lobby" && game.state === "playing") {
       // Transition to the game page
-      history.push("/game");
+      history.push("/game?id=" + game.id);
     }
 
     prevGame.current = game; // Update the ref to the latest state after every render
@@ -143,7 +143,7 @@ function RejoinGame(props: { game: any | null }) {
                 return;
               }
 
-              history.push("/game");
+              history.push("/game?id=" + game.id);
             } catch (err) {
               console.error(err);
               window.alert(err);
