@@ -90,7 +90,7 @@ action removeTank {
 
 action generateGame {
   fn: import { generateGame } from "@server/actions.js",
-  entities: [User, Game, Board]
+  entities: [Tank, Game, Board, PlayerInGame]
 }
 
 action abandonGame {
@@ -146,7 +146,7 @@ entity Board {=psl
   id      Int     @id @default(autoincrement())
   game    Game    @relation(fields: [gameId], references: [id])
   gameId  Int     @unique
-  state   String   @default("[]")
+  state   String  @default("[]")
 psl=}
 
 entity PlayerInGame {=psl
@@ -156,7 +156,7 @@ entity PlayerInGame {=psl
   gameId      Int
   user        User   @relation(fields: [userId], references: [id])
   userId      Int
-  state       String  @default("[]")
+  state       String @default("[]")
   tank        Tank   @relation(fields: [tankId], references: [id])
   tankId      Int
   mp          Int    @default(10)

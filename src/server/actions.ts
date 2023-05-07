@@ -217,23 +217,26 @@ const generateGrid = () => {
   return grid
 }
 
-export async function generateGame(args: any, context: any) {
+export async function generateGame(tankId: number | null, context: any) {
   if (!context.user) {
     throw new HttpError(401, "You must be logged in to generate a game.");
   }
 
-  // Ensure that the user is not already in a game and that they have a tank.
-  const user = await context.entities.User.findUnique({
-    where: { id: context.user.id },
-    include: { tanks: true },
-  });
-
-  if (!user) {
-    throw new HttpError(404, "User not found.");
+  if (!tankId) {
+    throw new HttpError(400, "You must provide a tank id.");
   }
 
-  if (!user.tanks || user.tanks.length === 0) {
-    throw new HttpError(403, "You must have a tank to generate a game.");
+  // Ensure that the user owns the tank
+  const tank = await context.entities.Tank.findUnique({
+    where: { id: tankId },
+  });
+
+  if (!tank) {
+    throw new HttpError(400, "You must provide a valid tank id.");
+  }
+
+  if (tank.creatorId !== context.user.id) {
+    throw new HttpError(401, "You must own the tank to generate a game.");
   }
 
   const game = await context.entities.Game.create({
@@ -255,6 +258,15 @@ export async function generateGame(args: any, context: any) {
     data: {
       gameId: game.id,
       state: JSON.stringify(board_state),
+    },
+  });
+
+  await context.entities.PlayerInGame.create({
+    data: {
+      gameId: game.id,
+      userId: context.user.id,
+      tankId: tankId,
+      order: 0,
     },
   });
 }

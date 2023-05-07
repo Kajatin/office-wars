@@ -12,8 +12,11 @@ import addTank from "@wasp/actions/addTank";
 import updateTank from "@wasp/actions/updateTank";
 import removeTank from "@wasp/actions/removeTank";
 
-export default function TankCustomizer(props: { user: User }) {
-  const { user } = props;
+export default function TankCustomizer(props: {
+  user: User;
+  setTankId: (id: number | null) => void;
+}) {
+  const { user, setTankId } = props;
   const { data: tanks, isFetching, error } = useQuery(getTank);
 
   const [tankIdx, setTankIdx] = useState(0);
@@ -33,6 +36,8 @@ export default function TankCustomizer(props: { user: User }) {
     setAccuracy(tank?.accuracy || 2);
     setAttackPower(tank?.attackPower || 2);
     setColor(tank?.color || "#199e38");
+
+    setTankId(tank?.id || null);
   }, [tank]);
 
   useEffect(() => {

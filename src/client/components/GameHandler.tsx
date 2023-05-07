@@ -12,8 +12,13 @@ import launchGame from "@wasp/actions/launchGame";
 import abandonGame from "@wasp/actions/abandonGame";
 import generateGame from "@wasp/actions/generateGame";
 
-export default function GameHandler(props: { user: User }) {
-  const { user } = props;
+export default function GameHandler(props: {
+  user: User;
+  tankId: number | null;
+}) {
+  const { user, tankId } = props;
+
+  console.log(tankId);
 
   const history = useHistory();
   const { data: game, isFetching, error } = useQuery(getGame);
@@ -57,7 +62,7 @@ export default function GameHandler(props: { user: User }) {
           <EndGameCredits game={game} />
         )
       ) : (
-        <GameCreation />
+        <GameCreation tankId={tankId} />
       )}
     </div>
   );
@@ -182,7 +187,9 @@ function EndGameCredits(props: { game: any | null }) {
   return <div>EndGame</div>;
 }
 
-function GameCreation() {
+function GameCreation(props: { tankId: number | null }) {
+  const { tankId } = props;
+
   const [code, setCode] = useState("");
 
   return (
@@ -225,7 +232,7 @@ function GameCreation() {
         className="w-full px-8 bg-white rounded border font-medium hover:bg-indigo-50 hover:border-indigo-400 py-2 text-stone-700 hover:text-indigo-600 transition-all duration-300"
         onClick={async () => {
           try {
-            await generateGame(null);
+            await generateGame(tankId);
             setCode("");
           } catch (err) {
             console.error(err);
