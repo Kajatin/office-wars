@@ -18,14 +18,14 @@ export default function GameHandler(props: {
 }) {
   const { user, tankId } = props;
 
-  console.log(tankId);
-
   const history = useHistory();
-  const { data: game, isFetching, error } = useQuery(getGame);
+  const { data: game, isFetching, error } = useQuery(getGame, tankId);
   const prevGame = useRef(game); // Initialize the ref with the initial state
 
-  console.log(game)
-  const lobbyName = game?.state === "playing" ? "Game in progress" : "Game Lobby";
+  console.log(game);
+
+  const lobbyName =
+    game?.state === "playing" ? "Game in progress" : "Game Lobby";
   const numPlayers = game?.players?.length || 0;
 
   useEffect(() => {

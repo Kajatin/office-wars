@@ -18,9 +18,16 @@ export async function getTank(args: any, context: any): Promise<Tank[] | null> {
   }
 }
 
-export async function getGame(args: any, context: any): Promise<any | null> {
+export async function getGame(
+  tankId: number | null,
+  context: any
+): Promise<any | null> {
   if (!context.user) {
     throw new HttpError(401, "You must be logged in to add a tank.");
+  }
+
+  if (!tankId) {
+    throw new HttpError(400, "You must provide a tankId.");
   }
 
   // Find games where user playsIn
@@ -48,9 +55,16 @@ export async function getGame(args: any, context: any): Promise<any | null> {
 
   if (games.length == 0) {
     return Promise.resolve(null);
-  } else {
-    return games[0];
   }
+
+  // Find the game where the user's tank is the tankId
+  const game = games.find((game: any) => {
+    return game.players.some((player: any) => {
+      return player.tank.id == tankId;
+    });
+  });
+
+  return game || null;
 }
 
 export const getFOV = async ({}, context: any) => {
