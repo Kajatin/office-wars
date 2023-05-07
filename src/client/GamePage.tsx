@@ -37,7 +37,12 @@ export default function GamePage({ user }: { user: User }) {
           ) : error ? (
             <div>Error: {error}</div>
           ) : (
-            <Arena state={state} setSelectedHex={setSelectedHex} />
+            <ArenaP5
+              game={state?.[0]}
+              tank={state?.[1].tank}
+              fov={state?.[1].state}
+              setSelectedHex={setSelectedHex}
+            />
           )}
         </div>
       </div>
@@ -53,6 +58,15 @@ export default function GamePage({ user }: { user: User }) {
                 (#{user.id})
               </span>
             </div>
+          </div>
+
+          <div className="flex flex-row gap-1">
+            <div>{state?.[0].code}</div>
+            <div>{state?.[1].tank.accuracy}</div>
+            <div>{state?.[1].tank.agility}</div>
+            <div>{state?.[1].tank.armor}</div>
+            <div>{state?.[1].tank.attackPower}</div>
+            <div>{state?.[1].hp}</div>
           </div>
 
           <div className="flex flex-row gap-1">
@@ -75,19 +89,6 @@ export default function GamePage({ user }: { user: User }) {
         </div>
       </div>
     </>
-  );
-}
-
-function Arena(props: { state: any; setSelectedHex: (hex: any) => void }) {
-  const { state, setSelectedHex } = props;
-
-  return (
-    <ArenaP5
-      game={state?.[0]}
-      tank={state?.[1].tank}
-      fov={state?.[1].state}
-      setSelectedHex={setSelectedHex}
-    />
   );
 }
 
@@ -120,7 +121,7 @@ function GameAction(props: { state: any; selectedHex: any | null }) {
             </svg>
 
             <div className="font-semibold w-full text-center pb-1">
-              {selectedHex.props.kind}
+              {selectedHex.props.kindParsed}
             </div>
 
             <button
