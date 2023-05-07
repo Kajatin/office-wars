@@ -26,17 +26,6 @@ export default class Map {
         }
 
         this.map.push(hex);
-
-        if (this.pos.q === q && this.pos.r === r) {
-          const hexColor = tank?.color?.replace("#", "") || "fcba03";
-          var bigint = parseInt(hexColor, 16);
-          var cr = (bigint >> 16) & 255;
-          var cg = (bigint >> 8) & 255;
-          var cb = bigint & 255;
-          this.map[this.map.length - 1].props.setColor(
-            window.p5.color(cr, cg, cb)
-          );
-        }
       }
     }
 
@@ -92,10 +81,10 @@ export default class Map {
     //   // tile.props.setColor(window.p5.color(209, 38, 73));
     // });
 
-    // // unselect all hexes
-    // this.map.forEach((hex) => {
-    //   hex.setSelected(false);
-    // });
+    // unselect all hexes
+    this.map.forEach((hex) => {
+      hex.setSelected(false);
+    });
 
     if (hex.props.visible) {
       hex.setSelected(true);
@@ -303,7 +292,7 @@ export default class Map {
   }
 
   drawMap(graphics) {
-    const drawHex = (corners, fillColor, graphics) => {
+    const drawHex = (corners, fillColor, graphics, name) => {
       graphics.stroke(51);
       graphics.strokeWeight(
         Math.min(graphics.width / 130, graphics.height / 130)
@@ -314,15 +303,38 @@ export default class Map {
         graphics.vertex(corner.x, corner.y);
       });
       graphics.endShape(graphics.CLOSE);
+
+      if (name) {
+        const center = corners.reduce(
+          (acc, corner) => acc.add(corner),
+          window.p5.createVector(0, 0)
+        );
+        center.div(corners.length);
+        graphics.fill(51);
+        graphics.textAlign(graphics.CENTER, graphics.CENTER);
+        graphics.textSize(
+          Math.min(graphics.width / 50, graphics.height / 50) *
+            (this.zoom > 1 ? 1 : this.zoom)
+        );
+        graphics.strokeWeight(0);
+        graphics.text(name, center.x, center.y - graphics.textSize() / 10);
+      }
     };
 
     let selectedHexCorners;
     let selectedHexFillColor;
+    let selectedHexName;
 
     this.map.forEach((hex) => {
       let corners = this.layout.polygonCorners(hex);
-      const fillColor = hex.props.visible ? hex.props.color : p5.color(225);
+
+      let fillColor = hex.props.visible ? hex.props.color : p5.color(225);
+      if (hex.props.ontop) {
+        fillColor = hex.props.ontop.color;
+      }
       fillColor.setAlpha(hex.props.visible ? (hex.selected ? 255 : 235) : 155);
+
+      const hexName = hex.props.ontop?.username || null;
 
       if (hex.selected) {
         const center = this.layout.hexToPixel(hex);
@@ -333,13 +345,19 @@ export default class Map {
           return scaledCorner.add(center);
         });
         selectedHexFillColor = fillColor;
+        selectedHexName = hexName;
       } else {
-        drawHex(corners, fillColor, graphics);
+        drawHex(corners, fillColor, graphics, hexName);
       }
     });
 
     if (selectedHexCorners) {
-      drawHex(selectedHexCorners, selectedHexFillColor, graphics);
+      drawHex(
+        selectedHexCorners,
+        selectedHexFillColor,
+        graphics,
+        selectedHexName
+      );
     }
   }
 }
