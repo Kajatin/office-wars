@@ -120,7 +120,7 @@ const generateGrid = () => {
     [5, 0, 0, 1, 1, 1, 0, 0, 0, 3, 3, 3, 3, 2, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 5],
     [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
   ]
-  
+
   return grid
 }
 
@@ -307,7 +307,7 @@ export const nextTurn = async () => {
 }
 
 
-export const spawnPlayers = async (args: {gameid: number}, context: any) => {
+export const spawnPlayers = async (args: { gameid: number }, context: any) => {
   console.log('Spawning players')
 
   // Olny admins can spawn players and start the game
@@ -321,7 +321,7 @@ export const spawnPlayers = async (args: {gameid: number}, context: any) => {
   })
 
   assert(game)
-  
+
   assert(game.id == args.gameid)
 
   // Get all the players in the game
@@ -332,7 +332,7 @@ export const spawnPlayers = async (args: {gameid: number}, context: any) => {
   })
 
   assert(players.length > 0)
-  
+
   // Get the board
   const board = await context.entities.Board.findFirst({
     where: {
@@ -341,9 +341,9 @@ export const spawnPlayers = async (args: {gameid: number}, context: any) => {
   })
 
   assert(board)
-  
-  const player_fovs : { [key: number]: string }  = {}
-  
+
+  const player_fovs: { [key: number]: string } = {}
+
   const grid = JSON.parse(board.state).grid
 
   // for each player generate a position on the board and check if it is not a mountain
@@ -356,22 +356,22 @@ export const spawnPlayers = async (args: {gameid: number}, context: any) => {
       x = Math.floor(Math.random() * 40);
       y = Math.floor(Math.random() * 40);
     }
-    
-    const q = x - Math.floor(y/2)
+
+    const q = x - Math.floor(y / 2)
     const r = y
     console.log(`Player ${player.id} will spawn at x,y (${x} ${y}) q,r (${q}, ${r})`)
-    
-    
-    const center = {q: q, r: r}
-    
-    let possible_fov: {q: number, r: number, kind: number, ontop: string}[]= []
+
+
+    const center = { q: q, r: r }
+
+    let possible_fov: { q: number, r: number, kind: number, ontop: string }[] = []
     const N = 3
     for (let q = -N; q <= N; q++) {
       const r1 = Math.max(-N, -q - N);
       const r2 = Math.min(N, -q + N);
       for (let r = r1; r <= r2; r++) {
-        const new_visible_tile = axial_add(center, {q: q, r: r})
-        const x = new_visible_tile.q + Math.floor(new_visible_tile.r/2)
+        const new_visible_tile = axial_add(center, { q: q, r: r })
+        const x = new_visible_tile.q + Math.floor(new_visible_tile.r / 2)
         const y = new_visible_tile.r
 
         let kind = -1
@@ -380,16 +380,16 @@ export const spawnPlayers = async (args: {gameid: number}, context: any) => {
         }
         console.log("new tile = ", new_visible_tile, "x,y = ", x, y, "kind = ", kind)
 
-        possible_fov.push({...new_visible_tile, kind: kind, ontop: ""})
+        possible_fov.push({ ...new_visible_tile, kind: kind, ontop: "" })
       }
     }
-    
+
     const state = {
-      pos: center, 
+      pos: center,
       fov: possible_fov,
       visited_tiles: []
     }
-    
+
     console.log(state)
 
     player_fovs[player.id] = JSON.stringify(state)
@@ -407,7 +407,7 @@ export const spawnPlayers = async (args: {gameid: number}, context: any) => {
       }
     })
   }
-  
+
   // update game state to playing
   await context.entities.Game.update({
     where: {
@@ -420,6 +420,85 @@ export const spawnPlayers = async (args: {gameid: number}, context: any) => {
   })
 }
 
-const axial_add = (hex: {q: number, r:number}, vec: {q: number, r:number}) => {
-    return {q: hex.q + vec.q, r: hex.r + vec.r}
+const axial_add = (hex: { q: number, r: number }, vec: { q: number, r: number }) => {
+  return { q: hex.q + vec.q, r: hex.r + vec.r }
+}
+
+export const actionInGame = async (args: { gameID: number, action: {action: string, info: any} }, context: any) => {
+    console.log("action in game")
+
+    // get the game
+    const game = await context.entities.Game.findFirst({
+        where: {
+            id: args.gameID
+        }
+    })
+    assert(game)
+    
+    // check if the user is in the game
+    const player = await context.entities.PlayerInGame.findFirst({
+        where: {
+            userId: context.user.id,
+            gameId: args.gameID
+        }
+    })
+    assert(player)
+    
+    // get the board
+    const board = await context.entities.Board.findFirst({
+        where: {
+            gameId: args.gameID
+        }
+    })
+    assert(board)
+    
+    const action = args.action
+    
+    if (action.action == "move") {
+        console.log("move action" + " " + action.info)
+        const player_state = JSON.parse(player.state)
+        const action_info = action.info
+        
+        // TODO check if the move is valid
+        
+        // re-calculating fov
+        const grid = JSON.parse(board.state).grid
+        const center = action_info
+
+        let possible_fov: { q: number, r: number, kind: number, ontop: string }[] = []
+        const N = 3
+        for (let q = -N; q <= N; q++) {
+            const r1 = Math.max(-N, -q - N);
+            const r2 = Math.min(N, -q + N);
+            for (let r = r1; r <= r2; r++) {
+                const new_visible_tile = axial_add(center, { q: q, r: r })
+                const x = new_visible_tile.q + Math.floor(new_visible_tile.r / 2)
+                const y = new_visible_tile.r
+
+                let kind = -1
+                if (x >= 0 && x < 40 && y >= 0 && y < 40) {
+                    kind = grid[y][x]
+                }
+                console.log("new tile = ", new_visible_tile, "x,y = ", x, y, "kind = ", kind)
+
+                possible_fov.push({ ...new_visible_tile, kind: kind, ontop: "" })
+            }
+        }
+
+        const new_state = {
+            ...player_state,
+            pos: center,
+            fov: possible_fov,
+        }
+        
+        // update player
+        await context.entities.PlayerInGame.update({
+            where: {
+                id: player.id
+            },
+            data: {
+                state: JSON.stringify(new_state)
+            }
+        })
+    }
 }

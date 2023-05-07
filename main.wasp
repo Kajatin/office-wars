@@ -118,6 +118,11 @@ action demoAction {
   entities: []
 }
 
+action actionInGame {
+  fn: import { actionInGame } from "@server/actions.js",
+    entities: [Game, PlayerInGame, Board]
+}
+
 // 📦 Entities
 
 entity User {=psl

@@ -12,6 +12,7 @@ import logout from "@wasp/auth/logout";
 import getGame from "@wasp/queries/getGame";
 import getTank from "@wasp/queries/getTank";
 import getState from "@wasp/queries/getState";
+import actionInGame from "@wasp/actions/actionInGame";
 import LoadingSpinner from "./components/LoadingSpinner";
 
 export default function GamePage({ user }: { user: User }) {
@@ -120,7 +121,7 @@ function GameAction(props: { selectedHex: any | null }) {
               {selectedHex.props.kind}
             </div>
 
-            <button className="w-full px-8 rounded border border-stone-500 font-medium text-sm hover:bg-indigo-50 hover:border-indigo-400 py-1 text-stone-700 hover:text-indigo-600 transition-all duration-300">
+            <button onClick={async () => await actionInGame({ gameID: 2, action: { action: "move", info: { q: selectedHex.q, r: selectedHex.r } } })} className="w-full px-8 rounded border border-stone-500 font-medium text-sm hover:bg-indigo-50 hover:border-indigo-400 py-1 text-stone-700 hover:text-indigo-600 transition-all duration-300">
               <div className="flex flex-row gap-1 justify-center items-center">
                 <span>Move</span>
                 <span className="material-symbols-outlined self-center">
