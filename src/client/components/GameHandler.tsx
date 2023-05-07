@@ -132,7 +132,7 @@ function RejoinGame(props: { game: any | null }) {
 
   return (
     <div className="flex flex-col gap-2 py-3 justify-center content-center">
-      <PlayerLobby players={game?.users} bounce={false} />
+      <PlayerLobby players={game?.players} bounce={false} />
 
       <div className="flex flex-row gap-2 justify-center mt-2">
         <button
@@ -160,9 +160,9 @@ function RejoinGame(props: { game: any | null }) {
 
         <button
           className="w-full h-full px-8 bg-white rounded border font-medium hover:bg-pink-50 hover:border-pink-400 py-2 text-stone-700 hover:text-pink-600 transition-all duration-300"
-          onClick={() => {
+          onClick={async () => {
             try {
-              abandonGame(null);
+              await abandonGame(game?.id || null);
             } catch (err) {
               console.error(err);
               window.alert(err);
@@ -246,6 +246,8 @@ function GameCreation(props: { tankId: number | null }) {
 
 function PlayerLobby(props: { players: any | undefined; bounce: boolean }) {
   const { players, bounce } = props;
+
+  console.log("players", players);
 
   return (
     <div className="flex flex-row gap-3 flex-wrap">
