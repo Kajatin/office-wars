@@ -136,6 +136,31 @@ export default function TankCustomizer(props: { user: User }) {
               )}
             </AnimatePresence>
 
+            <div className="w-[0.1rem] bg-stone-300 rounded mx-1"></div>
+
+            <button
+              className="flex self-center text-stone-700 hover:bg-indigo-50 hover:text-indigo-600 rounded transition-all duration-300"
+              onClick={async () => {
+                try {
+                  const newTank: Tank = {
+                    id: tank?.id || -1,
+                    agility: 2,
+                    armor: 2,
+                    accuracy: 2,
+                    attackPower: 2,
+                    color: "#aec5f9",
+                  };
+
+                  await addTank(newTank);
+                } catch (err) {
+                  console.error(err);
+                  window.alert(err);
+                }
+              }}
+            >
+              <span className="material-symbols-outlined self-center">add</span>
+            </button>
+
             <button
               className="flex self-center text-stone-700 hover:bg-stone-200 hover:text-stone-950 rounded transition-all duration-300"
               onClick={logout}
