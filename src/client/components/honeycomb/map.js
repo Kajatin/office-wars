@@ -87,15 +87,15 @@ export default class Map {
     // });
 
     // use A* to find the shortest path between the current hex and the target hex
-    let path = this.pathfind(currentHex, hex);
-    path.forEach((tile) => {
-      // tile.props.setColor(window.p5.color(209, 38, 73));
-    });
+    // let path = this.pathfind(currentHex, hex);
+    // path.forEach((tile) => {
+    //   // tile.props.setColor(window.p5.color(209, 38, 73));
+    // });
 
-    // unselect all hexes
-    this.map.forEach((hex) => {
-      hex.setSelected(false);
-    });
+    // // unselect all hexes
+    // this.map.forEach((hex) => {
+    //   hex.setSelected(false);
+    // });
 
     if (hex.props.visible) {
       hex.setSelected(true);

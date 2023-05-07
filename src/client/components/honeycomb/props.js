@@ -3,6 +3,15 @@ export default class HexProperties {
     this.visible = props?.visible || false;
     this.kind = props?.kind     
     this.color = this.tileKindToColor(this.kind);
+    
+    if (props && props.ontop && props.ontop.color) {
+      const hexColor = props.ontop.color.replace("#", "") || "fcba03";
+      var bigint = parseInt(hexColor, 16);
+      var cr = (bigint >> 16) & 255;
+      var cg = (bigint >> 8) & 255;
+      var cb = bigint & 255;
+      this.color = window.p5.color(cr, cg, cb)
+    }
   }
 
   setColor(color) {
