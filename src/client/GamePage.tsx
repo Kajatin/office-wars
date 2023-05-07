@@ -10,7 +10,6 @@ import ArenaP5 from "./components/ArenaP5";
 
 import logout from "@wasp/auth/logout";
 import getGame from "@wasp/queries/getGame";
-import getTank from "@wasp/queries/getTank";
 import getState from "@wasp/queries/getState";
 import LoadingSpinner from "./components/LoadingSpinner";
 
@@ -68,7 +67,6 @@ function Arena(props: {
   setSelectedHex: (hex: any) => void;
 }) {
   const { game, setSelectedHex } = props;
-  const { data: tank} = useQuery(getTank);
   const { data: state, isFetching, error } = useQuery(getState);
   
   return (
@@ -79,7 +77,12 @@ function Arena(props: {
         ) : error ? (
           <div>Error: {error}</div>
         ) : (
-          <ArenaP5 game={state![0]} tank={state![1].tank} fov={state![1].state} setSelectedHex={setSelectedHex}/>
+          <ArenaP5
+            game={state![0]}
+            tank={state![1].tank}
+            fov={state![1].state}
+            setSelectedHex={setSelectedHex}
+          />
         )}
       </div>
     </div>

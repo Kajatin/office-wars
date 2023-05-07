@@ -71,7 +71,6 @@ query getState {
   entities: [Game, Board, PlayerInGame]
 }
 
-
 // 📝 Actions
 
 action addTank {

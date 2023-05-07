@@ -2,7 +2,7 @@ import HttpError from "@wasp/core/HttpError.js";
 import type { Tank, Game, PlayerInGame } from "@wasp/entities";
 import { assert } from "console";
 
-export async function getTank(args: any, context: any): Promise<Tank | null> {
+export async function getTank(args: any, context: any): Promise<Tank[] | null> {
   if (!context.user) {
     throw new HttpError(401, "You must be logged in to add a tank.");
   }
@@ -14,7 +14,7 @@ export async function getTank(args: any, context: any): Promise<Tank | null> {
   if (tanks.length == 0) {
     return null;
   } else {
-    return tanks[0];
+    return tanks;
   }
 }
 
