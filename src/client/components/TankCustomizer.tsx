@@ -12,9 +12,15 @@ import addTank from "@wasp/actions/addTank";
 import updateTank from "@wasp/actions/updateTank";
 import removeTank from "@wasp/actions/removeTank";
 
-export default function TankCustomizer(props: { user: User }) {
-  const { user } = props;
-  const { data: tank, isFetching, error } = useQuery(getTank);
+export default function TankCustomizer(props: {
+  user: User;
+  setTankId: (id: number | null) => void;
+}) {
+  const { user, setTankId } = props;
+  const { data: tanks, isFetching, error } = useQuery(getTank);
+
+  const [tankIdx, setTankIdx] = useState(0);
+  const tank = tanks?.[tankIdx];
 
   const [agility, setAgility] = useState(tank?.agility || 2);
   const [armor, setArmor] = useState(tank?.armor || 2);
@@ -30,6 +36,8 @@ export default function TankCustomizer(props: { user: User }) {
     setAccuracy(tank?.accuracy || 2);
     setAttackPower(tank?.attackPower || 2);
     setColor(tank?.color || "#199e38");
+
+    setTankId(tank?.id || null);
   }, [tank]);
 
   useEffect(() => {
@@ -83,6 +91,7 @@ export default function TankCustomizer(props: { user: User }) {
                   onClick={async () => {
                     try {
                       const newTank: Tank = {
+                        id: tank?.id || -1,
                         agility: agility,
                         armor: armor,
                         accuracy: accuracy,
@@ -122,6 +131,7 @@ export default function TankCustomizer(props: { user: User }) {
                       }
 
                       await removeTank(tank.id);
+                      setTankIdx(0);
                     } catch (err) {
                       console.error(err);
                       window.alert(err);
@@ -134,6 +144,31 @@ export default function TankCustomizer(props: { user: User }) {
                 </motion.button>
               )}
             </AnimatePresence>
+
+            <div className="w-[0.1rem] bg-stone-300 rounded mx-1"></div>
+
+            <button
+              className="flex self-center text-stone-700 hover:bg-indigo-50 hover:text-indigo-600 rounded transition-all duration-300"
+              onClick={async () => {
+                try {
+                  const newTank: Tank = {
+                    id: tank?.id || -1,
+                    agility: 2,
+                    armor: 2,
+                    accuracy: 2,
+                    attackPower: 2,
+                    color: "#aec5f9",
+                  };
+
+                  await addTank(newTank);
+                } catch (err) {
+                  console.error(err);
+                  window.alert(err);
+                }
+              }}
+            >
+              <span className="material-symbols-outlined self-center">add</span>
+            </button>
 
             <button
               className="flex self-center text-stone-700 hover:bg-stone-200 hover:text-stone-950 rounded transition-all duration-300"
@@ -149,7 +184,49 @@ export default function TankCustomizer(props: { user: User }) {
           <div>Error: {error}</div>
         ) : (
           <div className="justify-center content-center">
-            <Tank color={color} changed={changed} />
+            <div className="flex flex-row items-center justify-between">
+              <button
+                className={
+                  "flex rounded h-full p-1 text-lg text-stone-600 transition-all duration-300 " +
+                  (tankIdx <= 0
+                    ? "opacity-50"
+                    : "hover:text-stone-900 hover:bg-stone-100")
+                }
+                disabled={tankIdx <= 0}
+                onClick={() => {
+                  if (tankIdx <= 0) {
+                    return;
+                  }
+
+                  setTankIdx(tankIdx - 1);
+                }}
+              >
+                <span className="material-symbols-outlined">chevron_left</span>
+              </button>
+
+              <div className="flex-1">
+                <Tank color={color} changed={changed} />
+              </div>
+              <button
+                className={
+                  "flex rounded h-full p-1 text-lg text-stone-600 transition-all duration-300 " +
+                  (tanks && tankIdx >= tanks.length - 1
+                    ? "opacity-50"
+                    : "hover:text-stone-900 hover:bg-stone-100")
+                }
+                disabled={!tanks || tankIdx >= tanks.length - 1}
+                onClick={() => {
+                  if (!tanks || tankIdx >= tanks.length - 1) {
+                    return;
+                  }
+
+                  setTankIdx(tankIdx + 1);
+                }}
+              >
+                <span className="material-symbols-outlined">chevron_right</span>
+              </button>
+            </div>
+
             <div>
               {!tank && (
                 <AnimatePresence>

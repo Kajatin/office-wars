@@ -12,14 +12,16 @@ import launchGame from "@wasp/actions/launchGame";
 import abandonGame from "@wasp/actions/abandonGame";
 import generateGame from "@wasp/actions/generateGame";
 
-export default function GameHandler(props: { user: User }) {
-  const { user } = props;
+export default function GameHandler(props: {
+  user: User;
+  tankId: number | null;
+}) {
+  const { user, tankId } = props;
 
   const history = useHistory();
-  const { data: game, isFetching, error } = useQuery(getGame);
+  const { data: game, isFetching, error } = useQuery(getGame, tankId);
   const prevGame = useRef(game); // Initialize the ref with the initial state
 
-  console.log(game)
   const lobbyName =
     game?.state === "playing" ? "Game in progress" : "Game Lobby";
   const numPlayers = game?.players?.length || 0;
@@ -58,7 +60,7 @@ export default function GameHandler(props: { user: User }) {
           <EndGameCredits game={game} />
         )
       ) : (
-        <GameCreation />
+        <GameCreation tankId={tankId} />
       )}
     </div>
   );
@@ -82,13 +84,13 @@ function GameLobby(props: { game: any | null }) {
       <div className="flex flex-row gap-2 justify-center mt-2">
         <button
           className="w-full px-8 bg-white rounded border font-medium hover:bg-indigo-50 hover:border-indigo-400 py-2 text-stone-700 hover:text-indigo-600 transition-all duration-300"
-          onClick={() => {
+          onClick={async () => {
             try {
               if (!game) {
                 return;
               }
 
-              launchGame(game.id);
+              await launchGame(game.id);
             } catch (err) {
               console.error(err);
               window.alert(err);
@@ -105,9 +107,9 @@ function GameLobby(props: { game: any | null }) {
 
         <button
           className="w-full px-8 bg-white rounded border font-medium hover:bg-pink-50 hover:border-pink-400 py-2 text-stone-700 hover:text-pink-600 transition-all duration-300"
-          onClick={() => {
+          onClick={async () => {
             try {
-              abandonGame(null);
+              await abandonGame(game?.id || null);
             } catch (err) {
               console.error(err);
               window.alert(err);
@@ -130,7 +132,7 @@ function RejoinGame(props: { game: any | null }) {
 
   return (
     <div className="flex flex-col gap-2 py-3 justify-center content-center">
-      <PlayerLobby players={game?.users} bounce={false} />
+      <PlayerLobby players={game?.players} bounce={false} />
 
       <div className="flex flex-row gap-2 justify-center mt-2">
         <button
@@ -158,9 +160,9 @@ function RejoinGame(props: { game: any | null }) {
 
         <button
           className="w-full h-full px-8 bg-white rounded border font-medium hover:bg-pink-50 hover:border-pink-400 py-2 text-stone-700 hover:text-pink-600 transition-all duration-300"
-          onClick={() => {
+          onClick={async () => {
             try {
-              abandonGame(null);
+              await abandonGame(game?.id || null);
             } catch (err) {
               console.error(err);
               window.alert(err);
@@ -183,7 +185,9 @@ function EndGameCredits(props: { game: any | null }) {
   return <div>EndGame</div>;
 }
 
-function GameCreation() {
+function GameCreation(props: { tankId: number | null }) {
+  const { tankId } = props;
+
   const [code, setCode] = useState("");
 
   return (
@@ -205,7 +209,7 @@ function GameCreation() {
               return;
             }
 
-            await joinGame(code);
+            await joinGame({ gameCode: code, tankId: tankId });
             setCode("");
           } catch (err) {
             console.error(err);
@@ -226,7 +230,7 @@ function GameCreation() {
         className="w-full px-8 bg-white rounded border font-medium hover:bg-indigo-50 hover:border-indigo-400 py-2 text-stone-700 hover:text-indigo-600 transition-all duration-300"
         onClick={async () => {
           try {
-            await generateGame(null);
+            await generateGame(tankId);
             setCode("");
           } catch (err) {
             console.error(err);
@@ -242,7 +246,9 @@ function GameCreation() {
 
 function PlayerLobby(props: { players: any | undefined; bounce: boolean }) {
   const { players, bounce } = props;
-  
+
+  console.log("players", players);
+
   return (
     <div className="flex flex-row gap-3 flex-wrap">
       {players ? (

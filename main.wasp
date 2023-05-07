@@ -58,7 +58,7 @@ query getTank {
 
 query getGame {
   fn: import { getGame } from "@server/queries.js",
-  entities: [Game, User]
+  entities: [Game, User, PlayerInGame]
 }
 
 query getFOV {
@@ -71,41 +71,41 @@ query getState {
   entities: [Game, Board, PlayerInGame]
 }
 
-
 // 📝 Actions
 
 action addTank {
   fn: import { addTank } from "@server/actions.js",
+  entities: [Tank]
 }
 
 action updateTank {
   fn: import { updateTank } from "@server/actions.js",
-  entities: [Tank, Game]
+  entities: [Tank]
 }
 
 action removeTank {
   fn: import { removeTank } from "@server/actions.js",
-  entities: [Tank, Game]
+  entities: [Tank]
 }
 
 action generateGame {
   fn: import { generateGame } from "@server/actions.js",
-  entities: [Game, Board]
+  entities: [Tank, Game, Board, PlayerInGame]
 }
 
 action abandonGame {
   fn: import { abandonGame } from "@server/actions.js",
-  entities: [User]
+  entities: [PlayerInGame]
 }
 
 action joinGame {
   fn: import { joinGame } from "@server/actions.js",
-  entities: [Game, PlayerInGame]
+  entities: [Game, Tank, PlayerInGame]
 }
 
 action launchGame {
   fn: import { launchGame } from "@server/actions.js",
-  entities: [Game, User]
+  entities: [Game, User, PlayerInGame]
 }
 
 action spawnPlayers {
@@ -150,8 +150,8 @@ psl=}
 entity Board {=psl
   id      Int     @id @default(autoincrement())
   game    Game    @relation(fields: [gameId], references: [id])
-  gameId  Int     @unique 
-  state   String   @default("[]")   
+  gameId  Int     @unique
+  state   String  @default("[]")
 psl=}
 
 entity PlayerInGame {=psl
@@ -161,7 +161,7 @@ entity PlayerInGame {=psl
   gameId      Int
   user        User   @relation(fields: [userId], references: [id])
   userId      Int
-  state       String  @default("[]")
+  state       String @default("[]")
   tank        Tank   @relation(fields: [tankId], references: [id])
   tankId      Int
   mp          Int    @default(10)
@@ -185,7 +185,7 @@ psl=}
 entity PlayInGame {=psl
   id          Int             @id @default(autoincrement())
   player      PlayerInGame    @relation(fields: [playerId], references: [id])
-  playerId    Int    
+  playerId    Int
   game        Game            @relation(fields: [gameId], references: [id])
   gameId      Int
   play        String           @default("")

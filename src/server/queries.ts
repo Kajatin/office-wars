@@ -1,20 +1,33 @@
 import HttpError from "@wasp/core/HttpError.js";
-import type { Tank, Game, User, PlayerInGame } from "@wasp/entities";
+import type { Tank, Game, PlayerInGame } from "@wasp/entities";
 import { assert } from "console";
 
-export async function getTank(args: any, context: any): Promise<Tank> {
+export async function getTank(args: any, context: any): Promise<Tank[] | null> {
   if (!context.user) {
     throw new HttpError(401, "You must be logged in to add a tank.");
   }
 
-  return await context.entities.Tank.findMany({
+  const tanks = await context.entities.Tank.findMany({
     where: { creatorId: context.user.id },
   });
+
+  if (tanks.length == 0) {
+    return null;
+  } else {
+    return tanks;
+  }
 }
 
-export async function getGame(args: any, context: any): Promise<any | null> {
+export async function getGame(
+  tankId: number | null,
+  context: any
+): Promise<any | null> {
   if (!context.user) {
     throw new HttpError(401, "You must be logged in to add a tank.");
+  }
+
+  if (!tankId) {
+    throw new HttpError(400, "You must provide a tankId.");
   }
 
   // Find games where user playsIn
@@ -22,9 +35,9 @@ export async function getGame(args: any, context: any): Promise<any | null> {
     where: {
       players: {
         some: {
-          userId: context.user.id
-        }
-      }
+          userId: context.user.id,
+        },
+      },
     },
     include: {
       players: {
@@ -33,17 +46,25 @@ export async function getGame(args: any, context: any): Promise<any | null> {
           user: {
             select: {
               username: true,
-            }
-          } 
-      }}
-    }
+            },
+          },
+        },
+      },
+    },
   });
-  
+
   if (games.length == 0) {
     return Promise.resolve(null);
-  } else {
-    return games[0];
   }
+
+  // Find the game where the user's tank is the tankId
+  const game = games.find((game: any) => {
+    return game.players.some((player: any) => {
+      return player.tank.id == tankId;
+    });
+  });
+
+  return game || null;
 }
 
 export const getFOV = async ({}, context: any) => {
@@ -58,20 +79,20 @@ export const getFOV = async ({}, context: any) => {
 
   // check who turn it is
   const curr_turn = await context.entities.Turn.findFirst({
-    where: { 
+    where: {
       gameId: game.id,
-      current: true
+      current: true,
     },
     select: {
-      user: true
-    }
-  })
+      user: true,
+    },
+  });
 
-  console.log(curr_turn)
-  console.log(context.user)
+  console.log(curr_turn);
+  console.log(context.user);
 
   if (curr_turn.user.id != context.user.id) {
-    return {}
+    return {};
   } else {
     return {
       width: 40,
@@ -93,35 +114,34 @@ export const getFOV = async ({}, context: any) => {
   }
 };
 
-
 export const getState = async ({}, context: any): Promise<[Game, PlayerInGame]> => {
   // TODO change this to be on the URL
   // get user game
-  // 
+  //
 
-  console.log("Getting state")
+  console.log("Getting state");
   const games = await context.entities.Game.findMany({
     where: {
       players: {
         some: {
-          userId: context.user.id
-        }
-      }
+          userId: context.user.id,
+        },
+      },
     },
   });
-  
+
   assert(games.length == 1, "User should be in exactly one game");
   const game = games[0];
-  
+
   const playeringame = await context.entities.PlayerInGame.findFirst({
     where: {
       gameId: game.id,
-      userId: context.user.id
+      userId: context.user.id,
     },
     include: {
-      tank: true
-    }
-  })
-  
-  return [game, playeringame]
-}
+      tank: true,
+    },
+  });
+
+  return [game, playeringame];
+};
