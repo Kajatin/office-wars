@@ -271,8 +271,39 @@ export async function generateGame(tankId: number | null, context: any) {
   });
 }
 
-export async function abandonGame(args: any, context: any) {
-  throw new HttpError(500, "Not implemented");
+export async function abandonGame(gameId: number | null, context: any) {
+  if (!context.user) {
+    throw new HttpError(401, "You must be logged in to generate a game.");
+  }
+
+  if (!gameId) {
+    throw new HttpError(400, "You must provide a game id.");
+  }
+
+  const playerInGame = await context.entities.PlayerInGame.findUnique({
+    where: {
+      gameId_userId: {
+        gameId: gameId,
+        userId: context.user.id,
+      },
+    },
+  });
+
+  if (!playerInGame) {
+    throw new HttpError(400, "You must be in the game to abandon it.");
+  }
+
+  if (playerInGame.userId !== context.user.id) {
+    throw new HttpError(401, "You must be in the game to abandon it.");
+  }
+
+  await context.entities.PlayerInGame.delete({
+    where: {
+      id: playerInGame.id,
+    },
+  });
+
+  return true;
 }
 
 export async function joinGame(

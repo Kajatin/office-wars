@@ -95,7 +95,7 @@ action generateGame {
 
 action abandonGame {
   fn: import { abandonGame } from "@server/actions.js",
-  entities: [User]
+  entities: [PlayerInGame]
 }
 
 action joinGame {

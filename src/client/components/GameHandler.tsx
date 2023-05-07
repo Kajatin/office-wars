@@ -111,7 +111,7 @@ function GameLobby(props: { game: any | null }) {
           className="w-full px-8 bg-white rounded border font-medium hover:bg-pink-50 hover:border-pink-400 py-2 text-stone-700 hover:text-pink-600 transition-all duration-300"
           onClick={() => {
             try {
-              abandonGame(null);
+              abandonGame(game?.id || null);
             } catch (err) {
               console.error(err);
               window.alert(err);
