@@ -27,7 +27,7 @@ page MainPage {
   component: import Main from "@client/MainPage"
 }
 
-route GameRoute { path: "/game", to: GamePage }
+route GameRoute { path: "/game/:id", to: GamePage }
 page GamePage {
   authRequired: true,
   component: import GamePage from "@client/GamePage"
@@ -43,7 +43,7 @@ page LoginPage {
   component: import Login from "@client/auth/LoginPage"
 }
 
-route DemoRoute { path: "/demo", to: DemoPage }
+route DemoRoute { path: "/demo/:id", to: DemoPage }
 page DemoPage {
   authRequired: true,
   component: import Login from "@client/DemoArea/DemoPage"

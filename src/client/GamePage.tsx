@@ -1,4 +1,4 @@
-import { useHistory, useLocation } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { useState } from "react";
 
 import { AnimatePresence, motion } from "framer-motion";
@@ -13,14 +13,9 @@ import getState from "@wasp/queries/getState";
 import actionInGame from "@wasp/actions/actionInGame";
 import LoadingSpinner from "./components/LoadingSpinner";
 
-export default function GamePage({ user }: { user: User }) {
+export default function GamePage({ match, user }: { match: any; user: User }) {
   const history = useHistory();
-
-  // Parse query params
-  const { search } = useLocation();
-  const params = new URLSearchParams(search);
-  const gameId = parseInt(params.get("id") || "");
-
+  const gameId = parseInt(match.params.id);
   const {
     data: state,
     isFetching,
@@ -208,8 +203,10 @@ function GameAction(props: { state: any; selectedHex: any | null }) {
                     action: "attack",
                     info: { q: selectedHex.q, r: selectedHex.r },
                   },
-                })}
-              className="w-full px-8 rounded border border-stone-500 font-medium text-sm hover:bg-indigo-50 hover:border-indigo-400 py-1 text-stone-700 hover:text-indigo-600 transition-all duration-300">
+                })
+              }
+              className="w-full px-8 rounded border border-stone-500 font-medium text-sm hover:bg-indigo-50 hover:border-indigo-400 py-1 text-stone-700 hover:text-indigo-600 transition-all duration-300"
+            >
               <div className="flex flex-row gap-1 justify-center items-center">
                 <span>Attack</span>
                 <span className="material-symbols-outlined self-center">
@@ -228,8 +225,7 @@ function GameAction(props: { state: any; selectedHex: any | null }) {
             </button>
           </div>
         </motion.div>
-      )
-      }
-    </AnimatePresence >
+      )}
+    </AnimatePresence>
   );
 }

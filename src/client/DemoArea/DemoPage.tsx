@@ -8,11 +8,10 @@ import spawnPlayers from "@wasp/actions/spawnPlayers";
 import demoAction from "@wasp/actions/demoAction";
 import actionInGame from "@wasp/actions/actionInGame";
 
-export default function GamePage({ user }: { user: User }) {
-
+export default function GamePage({ match, user }: { match: any; user: User }) {
   const { data: tank } = useQuery(getTank);
 
-  const gameId = 11;
+  const gameId = parseInt(match.params.id);
   const { data: state } = useQuery(getState, { gameId: gameId });
 
   return (
