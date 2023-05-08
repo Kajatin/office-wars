@@ -21,6 +21,8 @@ A turn-based strategy game that's so waspy because it fuses the sting of tactica
 Wasp is a domain specific language for building full-stack web apps with ease. This
 project was created for the [Wasp Hackathon #2](https://hackathon.wasp-lang.dev).
 
+To learn more about hexagons, check out [Red Blob Games](https://www.redblobgames.com/grids/hexagons/implementation.html) extraordinary tutorial on them. This game wouldn't exist (at least not with hexagons) if it weren't for this website.
+
 ## Contributors
 
 This project is brought to you by:
