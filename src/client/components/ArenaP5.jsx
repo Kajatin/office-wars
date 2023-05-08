@@ -7,9 +7,9 @@ import {pointy} from './honeycomb/layout';
 
 function ArenaP5(props) {
   const {game, tank, fov, setSelectedHex} = props;
-  console.log("game", game);
-  console.log("tank", tank);
-  console.log("fov", JSON.parse(fov));
+  // console.log("game", game);
+  // console.log("tank", tank);
+  // console.log("fov", JSON.parse(fov));
 
   const canvasRef = useRef(null);
 
@@ -26,7 +26,6 @@ function ArenaP5(props) {
 
         const hexSize = Math.min(p5.width / 15, p5.height / 15);
         game = new Game(fov, tank, pointy, p5.createVector(hexSize, hexSize), p5.createVector(0, 0));
-        console.log("we're in setup");
       };
 
       p5.draw = () => {

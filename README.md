@@ -1,4 +1,6 @@
-# Office Wars ⚔️🛡️
+<h1 align="center">
+Office Wars ⚔️🛡️
+</h1>
 
 <p align="center">
 A turn-based strategy game built with Wasp 🐝
@@ -13,6 +15,8 @@ https://office-wars-client.fly.dev/login
 </p>
 
 A turn-based strategy game that's so waspy because it fuses the sting of tactical warfare with the buzz of hexagonal exploration! Command your tank, conquer the map, and obliterate your foes in this electrifying, React-powered battlefield extravaganza. Get ready to swarm the competition and claim victory in this thrilling, hexa-tastic tank-stravaganza!
+
+---
 
 Wasp is a domain specific language for building full-stack web apps with ease. This
 project was created for the [Wasp Hackathon #2](https://hackathon.wasp-lang.dev).
