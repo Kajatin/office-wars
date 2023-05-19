@@ -616,6 +616,23 @@ export const actionInGame = async (
     console.log("move action" + " " + JSON.stringify(action.info));
     // TODO check if the move is valid
 
+    if (game.code == context.user.id as string) {
+      throw new HttpError(400, "Not your turn");
+    }
+
+    const new_id = context.user.id.toString();
+
+    await context.entities.Game.update({
+      where: {
+        id: args.gameID,
+      },
+      data: {
+        started_at: new Date(),
+        state: "playing",
+        code: new_id,
+      },
+    });
+
     // re-calculating fov
     const center = action_info;
     const centerx = center.q + Math.floor(center.r / 2);
@@ -670,7 +687,7 @@ export const actionInGame = async (
 
     if (grid_tile[1] != 0) {
       // get the player
-      const attacked_player : PlayerInGame = await context.entities.PlayerInGame.findFirst({
+      const attacked_player: PlayerInGame = await context.entities.PlayerInGame.findFirst({
         where: {
           id: grid_tile[1].id,
         }
